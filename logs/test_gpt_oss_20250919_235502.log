@@ -1,0 +1,25 @@
+2025-09-19 23:55:02,012 - INFO - ============================================================
+2025-09-19 23:55:02,012 - INFO - GPT-OSS-20B Minimal Loading Test
+2025-09-19 23:55:02,012 - INFO - ============================================================
+2025-09-19 23:55:02,024 - INFO - Configuration mode: minimal
+2025-09-19 23:55:02,024 - INFO - Model path: C:/Users/maxli/.cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee
+2025-09-19 23:55:02,024 - INFO - 
+=== Initial Memory Stats ===
+2025-09-19 23:55:02,045 - INFO - GPU 0 (NVIDIA GeForce RTX 3090):
+2025-09-19 23:55:02,046 - INFO -   Total: 25.77 GB
+2025-09-19 23:55:02,046 - INFO -   Free: 25.77 GB
+2025-09-19 23:55:02,046 - INFO -   Allocated: 0.00 GB
+2025-09-19 23:55:02,046 - INFO -   Reserved: 0.00 GB
+2025-09-19 23:55:02,046 - INFO - CPU RAM:
+2025-09-19 23:55:02,046 - INFO -   Process Used: 0.48 GB
+2025-09-19 23:55:02,046 - INFO -   System Available: 38.16 GB
+2025-09-19 23:55:02,046 - INFO -   System Total: 68.63 GB
+2025-09-19 23:55:02,047 - INFO - 
+=== Loading Model ===
+2025-09-19 23:55:02,048 - INFO - Loading tokenizer...
+2025-09-19 23:55:02,831 - INFO - Loading model (dtype=float16, device_map=auto)...
+2025-09-19 23:55:04,326 - WARNING - Standard loading failed: Could not import module 'get_keys_to_not_convert'. Are this object's requirements defined correctly?
+2025-09-19 23:55:04,326 - INFO - 
+Trying with trust_remote_code=True...
+2025-09-19 23:55:04,353 - ERROR - Both loading methods failed: Could not import module 'get_keys_to_not_convert'. Are this object's requirements defined correctly?
+2025-09-19 23:55:04,353 - ERROR - Custom loader required - run scripts/fix_model_loading.py
