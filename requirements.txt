@@ -1,0 +1,49 @@
+# Core AI/ML Dependencies
+torch>=2.0.0
+transformers>=4.35.0
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.4
+# faiss-gpu  # Uncomment for GPU support
+
+# API & Server
+anthropic>=0.18.0
+openai>=1.0.0
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+websockets>=12.0
+aiofiles>=23.0.0
+python-multipart>=0.0.6
+
+# PDF & Document Processing
+PyPDF2>=3.0.0
+pdfplumber>=0.10.0
+tiktoken>=0.5.0
+python-docx>=1.0.0
+
+# Data & Visualization
+numpy>=1.24.0
+pandas>=2.0.0
+streamlit>=1.28.0
+plotly>=5.17.0
+matplotlib>=3.7.0
+rich>=13.6.0
+
+# MCP Support (Model Context Protocol)
+# mcp  # To be installed separately if available
+
+# Utilities
+python-dotenv>=1.0.0
+asyncio
+nest-asyncio>=1.5.0
+pydantic>=2.0.0
+click>=8.1.0
+
+# Development & Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+black>=23.0.0
+pylint>=3.0.0
+
+# Optional Performance
+# accelerate>=0.24.0  # For model optimization
+# bitsandbytes>=0.41.0  # For 8-bit quantization
