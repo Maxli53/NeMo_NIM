@@ -1,416 +1,376 @@
 {
   "Step 1: Expert Mixing": {
-    "Batch 1, Seq 32, Top-k 2": {
+    "Batch 8, Seq 256, Top-k 8": {
       "status": "PASS",
-      "notes": "Time 31.5ms, GPU mem 0.000GB"
-    },
-    "Batch 1, Seq 32, Top-k 4": {
-      "status": "PASS",
-      "notes": "Time 15.7ms, GPU mem 0.000GB"
-    },
-    "Batch 1, Seq 32, Top-k 8": {
-      "status": "PASS",
-      "notes": "Time 38.6ms, GPU mem 0.000GB"
-    },
-    "Batch 1, Seq 128, Top-k 2": {
-      "status": "PASS",
-      "notes": "Time 26.1ms, GPU mem 0.001GB"
-    },
-    "Batch 1, Seq 128, Top-k 4": {
-      "status": "PASS",
-      "notes": "Time 68.1ms, GPU mem 0.001GB"
-    },
-    "Batch 1, Seq 128, Top-k 8": {
-      "status": "PASS",
-      "notes": "Time 125.0ms, GPU mem 0.001GB"
-    },
-    "Batch 1, Seq 256, Top-k 2": {
-      "status": "PASS",
-      "notes": "Time 62.4ms, GPU mem 0.001GB"
-    },
-    "Batch 1, Seq 256, Top-k 4": {
-      "status": "PASS",
-      "notes": "Time 152.8ms, GPU mem 0.001GB"
-    },
-    "Batch 1, Seq 256, Top-k 8": {
-      "status": "PASS",
-      "notes": "Time 203.4ms, GPU mem 0.001GB"
-    },
-    "Batch 2, Seq 32, Top-k 2": {
-      "status": "PASS",
-      "notes": "Time 15.8ms, GPU mem 0.000GB"
-    },
-    "Batch 2, Seq 32, Top-k 4": {
-      "status": "PASS",
-      "notes": "Time 26.2ms, GPU mem 0.000GB"
-    },
-    "Batch 2, Seq 32, Top-k 8": {
-      "status": "PASS",
-      "notes": "Time 47.5ms, GPU mem 0.000GB"
-    },
-    "Batch 2, Seq 128, Top-k 2": {
-      "status": "PASS",
-      "notes": "Time 56.3ms, GPU mem 0.001GB"
-    },
-    "Batch 2, Seq 128, Top-k 4": {
-      "status": "PASS",
-      "notes": "Time 95.9ms, GPU mem 0.001GB"
-    },
-    "Batch 2, Seq 128, Top-k 8": {
-      "status": "PASS",
-      "notes": "Time 177.0ms, GPU mem 0.001GB"
-    },
-    "Batch 2, Seq 256, Top-k 2": {
-      "status": "PASS",
-      "notes": "Time 93.0ms, GPU mem 0.003GB"
-    },
-    "Batch 2, Seq 256, Top-k 4": {
-      "status": "PASS",
-      "notes": "Time 186.6ms, GPU mem 0.003GB"
-    },
-    "Batch 2, Seq 256, Top-k 8": {
-      "status": "PASS",
-      "notes": "Time 437.5ms, GPU mem 0.003GB"
-    },
-    "Batch 4, Seq 32, Top-k 2": {
-      "status": "PASS",
-      "notes": "Time 37.2ms, GPU mem 0.001GB"
-    },
-    "Batch 4, Seq 32, Top-k 4": {
-      "status": "PASS",
-      "notes": "Time 37.1ms, GPU mem 0.001GB"
-    },
-    "Batch 4, Seq 32, Top-k 8": {
-      "status": "PASS",
-      "notes": "Time 93.2ms, GPU mem 0.001GB"
-    },
-    "Batch 4, Seq 128, Top-k 2": {
-      "status": "PASS",
-      "notes": "Time 167.5ms, GPU mem 0.003GB"
-    },
-    "Batch 4, Seq 128, Top-k 4": {
-      "status": "PASS",
-      "notes": "Time 384.8ms, GPU mem 0.003GB"
-    },
-    "Batch 4, Seq 128, Top-k 8": {
-      "status": "PASS",
-      "notes": "Time 716.2ms, GPU mem 0.003GB"
-    },
-    "Batch 4, Seq 256, Top-k 2": {
-      "status": "PASS",
-      "notes": "Time 363.9ms, GPU mem 0.006GB"
-    },
-    "Batch 4, Seq 256, Top-k 4": {
-      "status": "PASS",
-      "notes": "Time 766.0ms, GPU mem 0.006GB"
-    },
-    "Batch 4, Seq 256, Top-k 8": {
-      "status": "PASS",
-      "notes": "Time 1421.4ms, GPU mem 0.006GB"
-    },
-    "Batch 8, Seq 32, Top-k 2": {
-      "status": "PASS",
-      "notes": "Time 65.0ms, GPU mem 0.001GB"
-    },
-    "Batch 8, Seq 32, Top-k 4": {
-      "status": "PASS",
-      "notes": "Time 187.0ms, GPU mem 0.001GB"
-    },
-    "Batch 8, Seq 32, Top-k 8": {
-      "status": "PASS",
-      "notes": "Time 319.4ms, GPU mem 0.001GB"
-    },
-    "Batch 8, Seq 128, Top-k 2": {
-      "status": "PASS",
-      "notes": "Time 405.8ms, GPU mem 0.006GB"
-    },
-    "Batch 8, Seq 128, Top-k 4": {
-      "status": "PASS",
-      "notes": "Time 597.5ms, GPU mem 0.006GB"
-    },
-    "Batch 8, Seq 128, Top-k 8": {
-      "status": "PASS",
-      "notes": "Time 1206.3ms, GPU mem 0.006GB"
-    },
-    "Batch 8, Seq 256, Top-k 2": {
-      "status": "PASS",
-      "notes": "Time 735.4ms, GPU mem 0.013GB"
+      "notes": "Time 2801.2ms, GPU mem 0.013GB"
     },
     "Batch 8, Seq 256, Top-k 4": {
       "status": "PASS",
-      "notes": "Time 1185.9ms, GPU mem 0.012GB"
+      "notes": "Time 1064.6ms, GPU mem 0.013GB"
     },
-    "Batch 8, Seq 256, Top-k 8": {
+    "Batch 8, Seq 256, Top-k 2": {
       "status": "PASS",
-      "notes": "Time 2474.3ms, GPU mem 0.012GB"
-    }
-  },
-  "Step 4: Edge Case Tests": {
-    "Expert Mixing b=1, s=32, k=2": {
-      "status": "PASS",
-      "notes": "Time 140.6ms, GPU mem 0.000GB"
+      "notes": "Time 561.5ms, GPU mem 0.013GB"
     },
-    "Expert Mixing b=1, s=32, k=4": {
+    "Batch 8, Seq 128, Top-k 8": {
       "status": "PASS",
-      "notes": "Time 15.7ms, GPU mem 0.000GB"
+      "notes": "Time 1441.1ms, GPU mem 0.006GB"
     },
-    "Expert Mixing b=1, s=32, k=8": {
+    "Batch 8, Seq 128, Top-k 4": {
       "status": "PASS",
-      "notes": "Time 55.3ms, GPU mem 0.000GB"
+      "notes": "Time 738.6ms, GPU mem 0.006GB"
     },
-    "Expert Mixing b=1, s=128, k=2": {
+    "Batch 8, Seq 128, Top-k 2": {
+      "status": "PASS",
+      "notes": "Time 396.5ms, GPU mem 0.006GB"
+    },
+    "Batch 8, Seq 32, Top-k 8": {
+      "status": "PASS",
+      "notes": "Time 423.6ms, GPU mem 0.001GB"
+    },
+    "Batch 8, Seq 32, Top-k 4": {
+      "status": "PASS",
+      "notes": "Time 203.2ms, GPU mem 0.001GB"
+    },
+    "Batch 8, Seq 32, Top-k 2": {
+      "status": "PASS",
+      "notes": "Time 98.8ms, GPU mem 0.001GB"
+    },
+    "Batch 1, Seq 256, Top-k 8": {
+      "status": "PASS",
+      "notes": "Time 317.0ms, GPU mem 0.001GB"
+    },
+    "Batch 1, Seq 256, Top-k 4": {
+      "status": "PASS",
+      "notes": "Time 199.7ms, GPU mem 0.001GB"
+    },
+    "Batch 1, Seq 256, Top-k 2": {
+      "status": "PASS",
+      "notes": "Time 85.6ms, GPU mem 0.001GB"
+    },
+    "Batch 1, Seq 128, Top-k 8": {
+      "status": "PASS",
+      "notes": "Time 169.7ms, GPU mem 0.001GB"
+    },
+    "Batch 1, Seq 128, Top-k 4": {
+      "status": "PASS",
+      "notes": "Time 75.4ms, GPU mem 0.001GB"
+    },
+    "Batch 1, Seq 128, Top-k 2": {
+      "status": "PASS",
+      "notes": "Time 36.9ms, GPU mem 0.001GB"
+    },
+    "Batch 1, Seq 32, Top-k 8": {
       "status": "PASS",
       "notes": "Time 45.1ms, GPU mem 0.000GB"
     },
-    "Expert Mixing b=1, s=128, k=4": {
+    "Batch 1, Seq 32, Top-k 4": {
       "status": "PASS",
-      "notes": "Time 86.0ms, GPU mem 0.000GB"
+      "notes": "Time 20.7ms, GPU mem 0.000GB"
     },
-    "Expert Mixing b=1, s=128, k=8": {
+    "Batch 1, Seq 32, Top-k 2": {
       "status": "PASS",
-      "notes": "Time 140.7ms, GPU mem 0.000GB"
+      "notes": "Time 9.8ms, GPU mem 0.000GB"
     },
-    "Expert Mixing b=1, s=256, k=2": {
+    "Batch 4, Seq 256, Top-k 8": {
       "status": "PASS",
-      "notes": "Time 112.4ms, GPU mem 0.000GB"
+      "notes": "Time 1335.9ms, GPU mem 0.006GB"
     },
-    "Expert Mixing b=1, s=256, k=4": {
+    "Batch 4, Seq 256, Top-k 4": {
       "status": "PASS",
-      "notes": "Time 184.5ms, GPU mem 0.000GB"
+      "notes": "Time 687.4ms, GPU mem 0.006GB"
     },
-    "Expert Mixing b=1, s=256, k=8": {
+    "Batch 4, Seq 256, Top-k 2": {
       "status": "PASS",
-      "notes": "Time 234.8ms, GPU mem 0.000GB"
+      "notes": "Time 372.1ms, GPU mem 0.006GB"
     },
-    "Expert Mixing b=2, s=32, k=2": {
+    "Batch 4, Seq 128, Top-k 8": {
       "status": "PASS",
-      "notes": "Time 31.6ms, GPU mem 0.000GB"
+      "notes": "Time 685.3ms, GPU mem 0.003GB"
     },
-    "Expert Mixing b=2, s=32, k=4": {
+    "Batch 4, Seq 128, Top-k 4": {
       "status": "PASS",
-      "notes": "Time 42.1ms, GPU mem 0.000GB"
+      "notes": "Time 347.3ms, GPU mem 0.003GB"
     },
-    "Expert Mixing b=2, s=32, k=8": {
+    "Batch 4, Seq 128, Top-k 2": {
       "status": "PASS",
-      "notes": "Time 51.5ms, GPU mem 0.000GB"
+      "notes": "Time 177.2ms, GPU mem 0.003GB"
     },
-    "Expert Mixing b=2, s=128, k=2": {
+    "Batch 4, Seq 32, Top-k 8": {
       "status": "PASS",
-      "notes": "Time 87.9ms, GPU mem 0.000GB"
+      "notes": "Time 184.4ms, GPU mem 0.001GB"
     },
-    "Expert Mixing b=2, s=128, k=4": {
+    "Batch 4, Seq 32, Top-k 4": {
       "status": "PASS",
-      "notes": "Time 132.5ms, GPU mem 0.000GB"
+      "notes": "Time 95.2ms, GPU mem 0.001GB"
     },
-    "Expert Mixing b=2, s=128, k=8": {
+    "Batch 4, Seq 32, Top-k 2": {
       "status": "PASS",
-      "notes": "Time 217.0ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=2, s=256, k=2": {
+      "notes": "Time 48.8ms, GPU mem 0.001GB"
+    }
+  },
+  "Step 4: Edge Case Tests": {
+    "Expert Mixing b=8, s=256, k=8": {
       "status": "PASS",
-      "notes": "Time 171.2ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=2, s=256, k=4": {
-      "status": "PASS",
-      "notes": "Time 265.8ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=2, s=256, k=8": {
-      "status": "PASS",
-      "notes": "Time 500.2ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=4, s=32, k=2": {
-      "status": "PASS",
-      "notes": "Time 53.3ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=4, s=32, k=4": {
-      "status": "PASS",
-      "notes": "Time 56.2ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=4, s=32, k=8": {
-      "status": "PASS",
-      "notes": "Time 125.4ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=4, s=128, k=2": {
-      "status": "PASS",
-      "notes": "Time 249.5ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=4, s=128, k=4": {
-      "status": "PASS",
-      "notes": "Time 464.8ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=4, s=128, k=8": {
-      "status": "PASS",
-      "notes": "Time 785.2ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=4, s=256, k=2": {
-      "status": "PASS",
-      "notes": "Time 515.8ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=4, s=256, k=4": {
-      "status": "PASS",
-      "notes": "Time 906.4ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=4, s=256, k=8": {
-      "status": "PASS",
-      "notes": "Time 1562.0ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=8, s=32, k=2": {
-      "status": "PASS",
-      "notes": "Time 96.7ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=8, s=32, k=4": {
-      "status": "PASS",
-      "notes": "Time 216.3ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=8, s=32, k=8": {
-      "status": "PASS",
-      "notes": "Time 359.2ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=8, s=128, k=2": {
-      "status": "PASS",
-      "notes": "Time 547.8ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=8, s=128, k=4": {
-      "status": "PASS",
-      "notes": "Time 764.1ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=8, s=128, k=8": {
-      "status": "PASS",
-      "notes": "Time 1334.4ms, GPU mem 0.000GB"
-    },
-    "Expert Mixing b=8, s=256, k=2": {
-      "status": "PASS",
-      "notes": "Time 1011.4ms, GPU mem 0.000GB"
+      "notes": "Time 3104.7ms, GPU mem 0.000GB"
     },
     "Expert Mixing b=8, s=256, k=4": {
       "status": "PASS",
-      "notes": "Time 1466.3ms, GPU mem 0.000GB"
+      "notes": "Time 1412.0ms, GPU mem 0.000GB"
     },
-    "Expert Mixing b=8, s=256, k=8": {
+    "Expert Mixing b=8, s=256, k=2": {
       "status": "PASS",
-      "notes": "Time 2769.0ms, GPU mem 0.000GB"
+      "notes": "Time 919.9ms, GPU mem 0.000GB"
     },
-    "Full Forward Pass b=1, s=32, k=4": {
+    "Expert Mixing b=8, s=128, k=8": {
       "status": "PASS",
-      "notes": "Time 85.9ms, GPU mem 0.009GB"
+      "notes": "Time 1593.9ms, GPU mem 0.000GB"
     },
-    "Full Forward Pass b=1, s=128, k=4": {
+    "Expert Mixing b=8, s=128, k=4": {
       "status": "PASS",
-      "notes": "Time 8.0ms, GPU mem 0.000GB"
+      "notes": "Time 893.5ms, GPU mem 0.000GB"
     },
-    "Full Forward Pass b=1, s=256, k=4": {
+    "Expert Mixing b=8, s=128, k=2": {
       "status": "PASS",
-      "notes": "Time 15.7ms, GPU mem 0.000GB"
+      "notes": "Time 588.4ms, GPU mem 0.000GB"
     },
-    "Full Forward Pass b=2, s=32, k=4": {
+    "Expert Mixing b=8, s=32, k=8": {
       "status": "PASS",
-      "notes": "Time 0.0ms, GPU mem 0.000GB"
+      "notes": "Time 465.6ms, GPU mem 0.000GB"
     },
-    "Full Forward Pass b=2, s=128, k=4": {
+    "Expert Mixing b=8, s=32, k=4": {
       "status": "PASS",
-      "notes": "Time 0.0ms, GPU mem 0.000GB"
+      "notes": "Time 243.5ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=8, s=32, k=2": {
+      "status": "PASS",
+      "notes": "Time 143.8ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=1, s=256, k=8": {
+      "status": "PASS",
+      "notes": "Time 357.2ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=1, s=256, k=4": {
+      "status": "PASS",
+      "notes": "Time 251.3ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=1, s=256, k=2": {
+      "status": "PASS",
+      "notes": "Time 129.5ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=1, s=128, k=8": {
+      "status": "PASS",
+      "notes": "Time 197.8ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=1, s=128, k=4": {
+      "status": "PASS",
+      "notes": "Time 98.3ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=1, s=128, k=2": {
+      "status": "PASS",
+      "notes": "Time 58.8ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=1, s=32, k=8": {
+      "status": "PASS",
+      "notes": "Time 52.8ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=1, s=32, k=4": {
+      "status": "PASS",
+      "notes": "Time 29.8ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=1, s=32, k=2": {
+      "status": "PASS",
+      "notes": "Time 21.1ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=4, s=256, k=8": {
+      "status": "PASS",
+      "notes": "Time 1490.4ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=4, s=256, k=4": {
+      "status": "PASS",
+      "notes": "Time 857.9ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=4, s=256, k=2": {
+      "status": "PASS",
+      "notes": "Time 523.0ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=4, s=128, k=8": {
+      "status": "PASS",
+      "notes": "Time 764.5ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=4, s=128, k=4": {
+      "status": "PASS",
+      "notes": "Time 447.8ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=4, s=128, k=2": {
+      "status": "PASS",
+      "notes": "Time 253.9ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=4, s=32, k=8": {
+      "status": "PASS",
+      "notes": "Time 213.1ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=4, s=32, k=4": {
+      "status": "PASS",
+      "notes": "Time 127.5ms, GPU mem 0.000GB"
+    },
+    "Expert Mixing b=4, s=32, k=2": {
+      "status": "PASS",
+      "notes": "Time 71.3ms, GPU mem 0.000GB"
     },
     "Full Forward Pass b=2, s=256, k=4": {
       "status": "PASS",
-      "notes": "Time 34.4ms, GPU mem 0.000GB"
+      "notes": "Time 95.7ms, GPU mem 0.009GB"
     },
-    "Full Forward Pass b=4, s=32, k=4": {
+    "Full Forward Pass b=2, s=64, k=4": {
       "status": "PASS",
-      "notes": "Time 25.9ms, GPU mem 0.000GB"
+      "notes": "Time 22.3ms, GPU mem 0.000GB"
     },
-    "Full Forward Pass b=4, s=128, k=4": {
+    "Full Forward Pass b=2, s=128, k=4": {
       "status": "PASS",
-      "notes": "Time 17.0ms, GPU mem 0.000GB"
+      "notes": "Time 15.1ms, GPU mem 0.000GB"
+    },
+    "Full Forward Pass b=2, s=32, k=4": {
+      "status": "PASS",
+      "notes": "Time 16.1ms, GPU mem 0.000GB"
     },
     "Full Forward Pass b=4, s=256, k=4": {
       "status": "PASS",
-      "notes": "Time 0.0ms, GPU mem 0.000GB"
+      "notes": "Time 15.9ms, GPU mem 0.000GB"
     },
-    "Full Forward Pass b=8, s=32, k=4": {
+    "Full Forward Pass b=4, s=64, k=4": {
       "status": "PASS",
-      "notes": "Time 15.7ms, GPU mem 0.000GB"
+      "notes": "Time 17.0ms, GPU mem 0.000GB"
     },
-    "Full Forward Pass b=8, s=128, k=4": {
+    "Full Forward Pass b=4, s=128, k=4": {
       "status": "PASS",
-      "notes": "Time 15.7ms, GPU mem 0.000GB"
+      "notes": "Time 23.0ms, GPU mem 0.000GB"
+    },
+    "Full Forward Pass b=4, s=32, k=4": {
+      "status": "PASS",
+      "notes": "Time 17.0ms, GPU mem 0.000GB"
+    },
+    "Full Forward Pass b=1, s=256, k=4": {
+      "status": "PASS",
+      "notes": "Time 16.1ms, GPU mem 0.000GB"
+    },
+    "Full Forward Pass b=1, s=64, k=4": {
+      "status": "PASS",
+      "notes": "Time 26.4ms, GPU mem 0.000GB"
+    },
+    "Full Forward Pass b=1, s=128, k=4": {
+      "status": "PASS",
+      "notes": "Time 16.7ms, GPU mem 0.000GB"
+    },
+    "Full Forward Pass b=1, s=32, k=4": {
+      "status": "PASS",
+      "notes": "Time 15.8ms, GPU mem 0.000GB"
     },
     "Full Forward Pass b=8, s=256, k=4": {
       "status": "PASS",
-      "notes": "Time 31.5ms, GPU mem 0.000GB"
+      "notes": "Time 29.2ms, GPU mem 0.000GB"
+    },
+    "Full Forward Pass b=8, s=64, k=4": {
+      "status": "PASS",
+      "notes": "Time 16.7ms, GPU mem 0.000GB"
+    },
+    "Full Forward Pass b=8, s=128, k=4": {
+      "status": "PASS",
+      "notes": "Time 16.7ms, GPU mem 0.000GB"
+    },
+    "Full Forward Pass b=8, s=32, k=4": {
+      "status": "PASS",
+      "notes": "Time 22.3ms, GPU mem 0.000GB"
     }
   },
   "Step 2: LRU Cache": {
     "Parallel Loading": {
       "status": "PASS",
-      "notes": "Time 58.7ms, GPU mem 0.080GB"
+      "notes": "Time 73.6ms, GPU mem 0.080GB, Failures: 0"
     }
   },
   "Step 3: Forward Pass": {
-    "Batch 1, Seq 32": {
+    "Batch 2, Seq 256": {
       "status": "PASS",
-      "notes": "Time 85.9ms, GPU mem 0.009GB"
+      "notes": "Time 82.1ms, GPU mem 0.011GB"
     },
-    "Batch 1, Seq 128": {
+    "Batch 2, Seq 64": {
       "status": "PASS",
-      "notes": "Time 0.0ms, GPU mem 0.001GB"
-    },
-    "Batch 1, Seq 256": {
-      "status": "PASS",
-      "notes": "Time 0.0ms, GPU mem 0.001GB"
-    },
-    "Batch 2, Seq 32": {
-      "status": "PASS",
-      "notes": "Time 0.0ms, GPU mem 0.000GB"
+      "notes": "Time 4.2ms, GPU mem 0.001GB"
     },
     "Batch 2, Seq 128": {
       "status": "PASS",
-      "notes": "Time 0.0ms, GPU mem 0.001GB"
+      "notes": "Time 2.1ms, GPU mem 0.001GB"
     },
-    "Batch 2, Seq 256": {
+    "Batch 2, Seq 32": {
       "status": "PASS",
-      "notes": "Time 18.5ms, GPU mem 0.003GB"
-    },
-    "Batch 4, Seq 32": {
-      "status": "PASS",
-      "notes": "Time 2.0ms, GPU mem 0.001GB"
-    },
-    "Batch 4, Seq 128": {
-      "status": "PASS",
-      "notes": "Time 6.0ms, GPU mem 0.003GB"
+      "notes": "Time 2.3ms, GPU mem 0.000GB"
     },
     "Batch 4, Seq 256": {
       "status": "PASS",
-      "notes": "Time 0.0ms, GPU mem 0.006GB"
+      "notes": "Time 3.2ms, GPU mem 0.006GB"
     },
-    "Batch 8, Seq 32": {
+    "Batch 4, Seq 64": {
       "status": "PASS",
-      "notes": "Time 0.0ms, GPU mem 0.001GB"
+      "notes": "Time 2.7ms, GPU mem 0.001GB"
     },
-    "Batch 8, Seq 128": {
+    "Batch 4, Seq 128": {
       "status": "PASS",
-      "notes": "Time 0.0ms, GPU mem 0.006GB"
+      "notes": "Time 2.0ms, GPU mem 0.003GB"
+    },
+    "Batch 4, Seq 32": {
+      "status": "PASS",
+      "notes": "Time 2.9ms, GPU mem 0.001GB"
+    },
+    "Batch 1, Seq 256": {
+      "status": "PASS",
+      "notes": "Time 2.0ms, GPU mem 0.001GB"
+    },
+    "Batch 1, Seq 64": {
+      "status": "PASS",
+      "notes": "Time 3.8ms, GPU mem 0.000GB"
+    },
+    "Batch 1, Seq 128": {
+      "status": "PASS",
+      "notes": "Time 2.4ms, GPU mem 0.001GB"
+    },
+    "Batch 1, Seq 32": {
+      "status": "PASS",
+      "notes": "Time 2.2ms, GPU mem 0.000GB"
     },
     "Batch 8, Seq 256": {
       "status": "PASS",
-      "notes": "Time 15.8ms, GPU mem 0.013GB"
+      "notes": "Time 6.4ms, GPU mem 0.013GB"
+    },
+    "Batch 8, Seq 64": {
+      "status": "PASS",
+      "notes": "Time 2.3ms, GPU mem 0.003GB"
+    },
+    "Batch 8, Seq 128": {
+      "status": "PASS",
+      "notes": "Time 3.5ms, GPU mem 0.006GB"
+    },
+    "Batch 8, Seq 32": {
+      "status": "PASS",
+      "notes": "Time 2.1ms, GPU mem 0.001GB"
     }
   },
   "Step 4: Gradient Flow": {
     "Full Model Gradient": {
       "status": "PASS",
-      "notes": "Gradients flow through model output, Time 15.7ms, GPU mem 0.003GB"
+      "notes": "Gradients flow through model output, Time 2.3ms, GPU mem 0.003GB"
     }
   },
   "Step 4: Masked Tokens": {
     "Masked Tokens Handling": {
       "status": "PASS",
-      "notes": "Time 0.0ms, GPU mem 0.001GB"
+      "notes": "Time 3.2ms, GPU mem 0.001GB"
     }
   },
   "Step 4: Reference Comparison": {
     "Reference Check": {
       "status": "WARN",
-      "notes": "Max diff 4.781250, Time 15.7ms, GPU mem 0.000GB"
+      "notes": "Max diff 4.281250, Time 10.7ms, GPU mem 0.000GB"
     }
   }
 }
