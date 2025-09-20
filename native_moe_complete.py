@@ -62,9 +62,15 @@ class GPTOSSNativeMoE(nn.Module):
         self.load_count = 0
         self.cache_hits = 0
 
-        # Load routers (small, keep in memory)
-        self.routers = self._load_all_routers()
-        logger.info(f"Loaded {len(self.routers)} router layers")
+        # Load routers (small, keep in memory) as parameters
+        router_data = self._load_all_routers()
+        self.routers = nn.ParameterDict()
+        for layer_idx, router in router_data.items():
+            self.routers[str(layer_idx)] = nn.ParameterDict({
+                'weight': nn.Parameter(router['weight'], requires_grad=False),
+                'bias': nn.Parameter(router['bias'], requires_grad=False)
+            })
+        logger.info(f"Loaded {len(self.routers)} router layers as parameters")
 
         # Track memory
         self.initial_memory = self._get_memory_stats()
@@ -108,7 +114,7 @@ class GPTOSSNativeMoE(nn.Module):
             expert_indices: [batch, seq, k]
             expert_weights: [batch, seq, k]
         """
-        router = self.routers[layer_idx]
+        router = self.routers[str(layer_idx)]
 
         # Compute routing scores
         scores = hidden_states @ router["weight"].T + router["bias"]
@@ -160,7 +166,8 @@ class GPTOSSNativeMoE(nn.Module):
     def moe_forward(
         self,
         hidden_states: torch.Tensor,
-        layer_idx: int
+        layer_idx: int,
+        attention_mask: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
         """
         Forward pass through MoE layer with dynamic expert loading
@@ -168,6 +175,7 @@ class GPTOSSNativeMoE(nn.Module):
         Args:
             hidden_states: [batch, seq, hidden]
             layer_idx: Layer index
+            attention_mask: Optional [batch, seq] or [batch, seq, 1] mask
 
         Returns:
             Output tensor [batch, seq, hidden]
@@ -181,18 +189,25 @@ class GPTOSSNativeMoE(nn.Module):
         # Load only needed experts
         experts = self.load_experts(layer_idx, unique_experts)
 
+        # Apply attention mask if provided
+        if attention_mask is not None:
+            if attention_mask.dim() == 2:
+                attention_mask = attention_mask.unsqueeze(-1)
+            hidden_states = hidden_states * attention_mask.to(hidden_states.dtype)
+
         # For demo, just return weighted sum (real implementation would apply expert FFN)
         # In production, would call expert_mixer.mix_expert_outputs()
         output = hidden_states  # Placeholder
 
         return output
 
-    def forward(self, input_ids: torch.Tensor) -> Dict:
+    def forward(self, input_ids: torch.Tensor, attention_mask: Optional[torch.Tensor] = None) -> Dict:
         """
         Full forward pass through the model
 
         Args:
             input_ids: [batch, seq]
+            attention_mask: Optional [batch, seq] mask (1=keep, 0=mask)
 
         Returns:
             Dict with outputs and statistics
@@ -205,10 +220,15 @@ class GPTOSSNativeMoE(nn.Module):
             dtype=torch.bfloat16, device=self.device
         )
 
+        # Apply initial attention mask if provided
+        if attention_mask is not None:
+            mask_expanded = attention_mask.unsqueeze(-1).to(hidden_states.dtype)
+            hidden_states = hidden_states * mask_expanded
+
         # Process through layers
         for layer_idx in range(min(3, self.num_layers)):  # Demo: only 3 layers
             # MoE forward pass with dynamic expert loading
-            hidden_states = self.moe_forward(hidden_states, layer_idx)
+            hidden_states = self.moe_forward(hidden_states, layer_idx, attention_mask)
 
         # Get final memory stats
         final_memory = self._get_memory_stats()
