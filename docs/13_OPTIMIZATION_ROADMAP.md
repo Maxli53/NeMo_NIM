@@ -2,7 +2,18 @@
 
 ## Executive Summary
 
-With 4 priority optimizations complete, this roadmap outlines the next phase of performance improvements, focusing on safe, incremental gains with rigorous validation.
+With 4 priority optimizations complete and a **comprehensive safety framework now implemented**, this roadmap outlines the next phase of performance improvements. All optimizations will be deployed through our safety framework with feature flags, monitoring, and automatic rollback capabilities.
+
+## 🛡️ Safety Framework Status
+
+✅ **Comprehensive Safety Framework Implemented**
+- Master control center with feature flags (all default OFF)
+- Real-time health monitoring system
+- Automatic rollback on threshold violations
+- Emergency kill switch for all optimizations
+- Full audit trail and metrics export
+
+See [14_SAFETY_FRAMEWORK.md](14_SAFETY_FRAMEWORK.md) for complete details.
 
 ## Current State (v3.1)
 
@@ -19,6 +30,7 @@ With 4 priority optimizations complete, this roadmap outlines the next phase of 
 - **Cost:** $0.13/million tokens
 
 ## Phase 1: Quick Wins (2 Weeks)
+**Status:** 🚧 IN PROGRESS - See [16_FUTURE_ROADMAP.md](16_FUTURE_ROADMAP.md) for torch.compile and bitsandbytes implementation
 
 ### 1.1 Dynamic Batching + Gradient Accumulation
 **Timeline:** 3 days
@@ -431,3 +443,4 @@ This roadmap provides a structured path to achieve 10× overall performance impr
 
 *For completed optimizations, see [12_OPTIMIZATIONS_COMPLETE.md](12_OPTIMIZATIONS_COMPLETE.md)*
 *For implementation guide, see [21_OPTIMIZATION_GUIDE.md](OPTIMIZATION_GUIDE.md)*
+*For scaling roadmap (multi-GPU, 120B models), see [16_FUTURE_ROADMAP.md](16_FUTURE_ROADMAP.md)*

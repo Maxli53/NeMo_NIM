@@ -28,7 +28,8 @@ Performance:
 import torch
 import pickle
 import json
-from safetensors import safe_open, save_file
+from safetensors import safe_open
+from safetensors.torch import save_file
 from collections import OrderedDict
 from typing import Dict, Optional, Tuple, Any
 import logging
