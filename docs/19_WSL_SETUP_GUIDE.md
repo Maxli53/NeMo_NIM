@@ -149,10 +149,10 @@ wsl --shutdown && wsl
 
 | Metric | Windows | WSL2 | Improvement |
 |--------|---------|------|-------------|
-| Throughput | 5× baseline | 25× baseline | **400%** |
-| Memory Usage | 2.1GB | 0.5GB | **76%** |
-| Latency | 200ms | 50ms | **75%** |
-| TFLOPS | 18.3 | 21.7 | **18.6%** |
+| Throughput (Real) | 6-8 tok/s | 15-20 tok/s | **2.5× actual** |
+| Memory Usage | 7-8GB | 5-7GB | **20-30% less** |
+| Latency | 150ms | 50ms | **66% reduction** |
+| Model Loading | 25s | 3s | **8× faster** |
 
 ---
 

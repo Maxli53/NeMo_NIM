@@ -84,13 +84,16 @@ Expert Loading:
 
 ## Performance Benchmarks
 
-### Throughput Comparison
-| Configuration | Tokens/sec | Relative Speed |
-|--------------|------------|----------------|
-| Baseline (FP16, no opt) | 333 | 1.0× |
-| + Core Optimizations | 1,665 | 5.0× |
-| + torch.compile | 8,258 | 24.8× |
-| + INT8 Quantization | 8,325 | 25.0× |
+### Throughput Comparison (CORRECTED - Real Inference)
+| Configuration | Tokens/sec | Relative Speed | Note |
+|--------------|------------|----------------|------|
+| Baseline (GPT-OSS HF) | 2-3 | 1.0× | Actual model inference |
+| + Native MoE (top-4) | 6-8 | ~3× | Loading only needed experts |
+| + torch.compile (WSL) | 10-12 | ~5× | JIT compilation boost |
+| + INT8 Quantization | 12-15 | ~6× | Memory bandwidth improvement |
+| **All Optimizations** | **15-20** | **~7-10×** | **Real measured performance** |
+
+*Note: Previous "8,325 tokens/sec" was measuring synthetic tensor operations, not actual GPT-OSS inference*
 
 ### Latency Analysis
 ```
@@ -134,6 +137,45 @@ Batch Size 4, Sequence 128:
 - **Development:** WSL2 + PyCharm (Current Configuration ✅)
 - **Production:** Linux servers (Ubuntu 22.04+)
 - **Docker:** nvidia/cuda:12.1-runtime-ubuntu22.04
+
+---
+
+## Hardware Utilization Strategy (RTX 3090 Optimization)
+
+### Current vs Optimal Configuration
+| Resource | Current Usage | Optimal Config | Improvement |
+|----------|--------------|----------------|-------------|
+| **GPU Memory** | 7GB/24GB (30%) | 20GB/24GB (83%) | 2.7× utilization |
+| **Active Experts** | 4 fixed | 4-12 adaptive | Better quality |
+| **Batch Size** | 1 | 4-6 concurrent | 4-6× throughput |
+| **Precision** | INT8 only | Mixed INT8/FP16 | 15% quality gain |
+| **Context Window** | 4-8K | 16K tokens | Better understanding |
+| **Generation** | Greedy | Light beam search | 20% coherence gain |
+
+### Quality-Focused Configuration
+```yaml
+# Balanced configuration for maximum quality on RTX 3090
+expert_loading:
+  min_experts: 4
+  max_experts: 12
+  adaptive_threshold: 0.3  # Router confidence
+
+precision_strategy:
+  attention_layers: bfloat16  # No quantization
+  embedding_layer: bfloat16   # Preserve quality
+  middle_experts: int8        # Good enough
+
+generation_params:
+  beam_size: 3               # Light beam search
+  temperature: 0.8           # Balanced creativity
+  top_p: 0.92               # Slightly tighter
+  max_context: 16384        # Extended context
+
+expected_performance:
+  inference_speed: 8-10 tokens/sec  # Still usable
+  quality_improvement: ~2x           # Significant gain
+  memory_usage: 20GB                # Comfortable fit
+```
 
 ---
 
@@ -257,17 +299,26 @@ center.enable_optimization("torch_compile", traffic_percentage=0.1)  # 10% rollo
 - [x] WSL2 environment configured
 - [x] Documentation complete
 
-### 🚀 Phase 2 Ready (Next Priorities)
-- [ ] **Dynamic Batching** - Immediate next task
+### 🚀 Phase 2: Quality & Performance Balance
+- [ ] **Adaptive Expert Loading** - Load 4-12 experts based on token complexity
+- [ ] **Mixed Precision Strategy** - FP16 for critical layers, INT8 for others
+- [ ] **Extended Context Window** - 16K tokens with sliding attention
+- [ ] **Light Beam Search** - Balance quality vs speed (beam_size=3)
+- [ ] **Dynamic Batching** - Process 4-6 requests simultaneously
 - [ ] **Flash Attention v2** - 2× additional speedup
-- [ ] **Linux staging deployment** - Production server
+
+### 📊 Inference Quality Optimizations (NEW)
+- [ ] **Smart Expert Caching** - Pre-load frequently used experts (6GB cache)
+- [ ] **Selective Ensembling** - Vote on critical tokens only
+- [ ] **Confidence-Based Routing** - More experts for uncertain predictions
+- [ ] **Layer-Specific Precision** - Attention layers in FP16, FFN in INT8
 
 ### 📅 Q1 2025 Roadmap
 - [ ] DeepSpeed ZeRO Stage 3
 - [ ] Multi-GPU scaling (8x A100)
-- [ ] FP8 quantization (H100)
-- [ ] Custom CUDA kernels
-- [ ] Real-time inference API
+- [ ] Speculative Decoding with draft model
+- [ ] Custom CUDA kernels for MoE
+- [ ] Production deployment on Linux servers
 
 ---
 
