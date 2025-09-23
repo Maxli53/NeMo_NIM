@@ -26,7 +26,8 @@
       "Bash(grep:*)",
       "Bash(awk:*)",
       "WebSearch",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []
