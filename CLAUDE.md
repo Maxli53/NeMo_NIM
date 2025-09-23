@@ -1,7 +1,7 @@
 # CLAUDE.md - Development Guidelines & Safety Protocols
 
 ## 🎯 Purpose
-This document ensures we maintain professional development standards and never compromise on quality, safety, or best practices.
+This document ensures we maintain professional development standards and never compromise on quality, safety, or best practices for the integrated AI Agents + MoE system.
 
 ## 🛡️ Core Principles
 
@@ -416,14 +416,51 @@ redis-cli FLUSHALL  # If using Redis
 
 ---
 
+## Project-Specific Guidelines
+
+### Integrated System Architecture
+This project consists of TWO integrated components:
+1. **Multi-Agent Discussion System** (main application)
+2. **MoE Backend** (GPT-OSS-20B support)
+
+### When Working on Agent System
+- Main entry: `main.py`
+- Core files: `src/agents/`, `src/core/`, `src/ui/`
+- Keep integration with MoE backend intact
+- Test with multiple model providers
+
+### When Working on MoE Backend
+- Core files: `src/moe/`
+- Maintain performance: 29.1 TPS baseline
+- Keep memory under 7.3GB
+- Test with agent system integration
+
+### Integration Points
+```python
+# src/config.py - Model provider selection
+ModelProvider.GPT_OSS  # Uses MoE backend
+
+# src/core/model_manager.py - Model loading
+if provider == ModelProvider.GPT_OSS:
+    # Load via MoE implementation
+```
+
 ## Quick Reference Commands
 
 ```bash
-# Development
-pytest tests/                  # Run tests
+# Development - Agent System
+python main.py --help          # Show options
+streamlit run src/ui/streamlit_app.py  # UI
+python -m src.api.server       # API server
+
+# Development - MoE Backend
+pytest tests/test_performance.py  # MoE benchmarks
+python tests/test_functional.py   # MoE integration
+
+# Testing Both Systems
+pytest tests/                  # Run all tests
 ruff check src/                # Lint code
 mypy src/                      # Type check
-python -m src.api.server       # Start API
 
 # Docker
 docker-compose up -d           # Start services
@@ -435,7 +472,7 @@ git checkout -b feature/name   # New feature branch
 git commit -m "feat: message"  # Commit with convention
 git push origin feature/name   # Push branch
 
-# Performance
+# Performance Monitoring
 python tests/test_performance.py --benchmark
 nvidia-smi                     # GPU monitoring
 htop                          # System monitoring
