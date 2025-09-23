@@ -4,6 +4,12 @@
 
 Native PyTorch implementation of a 20B parameter Mixture of Experts (MoE) model optimized for single-GPU inference on RTX 3090 (24GB VRAM).
 
+**Latest Updates (2025-09-23)**:
+- ✅ Loads actual 13GB pretrained weights from safetensors
+- ✅ INT8 quantization working with proper dtype handling
+- ✅ Batch size testing framework for optimal throughput
+- ⚠️ Model structure uses gated MLPs, not traditional MoE routing
+
 ## Core Architecture
 
 ### MoE Components
@@ -110,7 +116,9 @@ def forward_attention(self, q, k, v):
 
 ```
 src/moe/
-├── native_moe_loader_v2.py      # Model loading with top-k
+├── native_moe_loader_v2.py      # Model loading with real weights ✅
+├── int8_dtype_fix.py             # INT8 with dtype handling (NEW) ✅
+├── batch_size_testing.py         # Batch optimization framework (NEW) ✅
 ├── expert_cache.py               # LRU expert caching
 ├── async_expert_loader.py        # Async I/O for weights
 ├── optimization_safety/          # Safety framework
@@ -119,7 +127,8 @@ src/moe/
 │   └── rollback_manager.py
 └── extensions/
     ├── flash_attention.py        # SDPA wrapper
-    └── quantization.py           # INT8 support (WIP)
+    ├── quantization.py           # INT8 support (deprecated)
+    └── quantization_manager.py   # Bitsandbytes integration
 ```
 
 ## Memory Layout

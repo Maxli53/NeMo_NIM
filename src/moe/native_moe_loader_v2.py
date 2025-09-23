@@ -34,18 +34,29 @@ class ExpertLRUCache:
             return self.cache[key]
         return None
 
-    def put(self, key: str, tensor: torch.Tensor):
-        tensor_bytes = tensor.numel() * tensor.element_size()
+    def put(self, key: str, data):
+        # Calculate size - handle both tensor and dict of tensors
+        if isinstance(data, torch.Tensor):
+            data_bytes = data.numel() * data.element_size()
+        elif isinstance(data, dict):
+            data_bytes = sum(t.numel() * t.element_size() for t in data.values() if isinstance(t, torch.Tensor))
+        else:
+            data_bytes = 0
 
         # Evict old items if needed
-        while self.current_memory + tensor_bytes > self.max_memory_bytes and self.cache:
-            evicted_key, evicted_tensor = self.cache.popitem(last=False)
-            evicted_bytes = evicted_tensor.numel() * evicted_tensor.element_size()
+        while self.current_memory + data_bytes > self.max_memory_bytes and self.cache:
+            evicted_key, evicted_data = self.cache.popitem(last=False)
+            if isinstance(evicted_data, torch.Tensor):
+                evicted_bytes = evicted_data.numel() * evicted_data.element_size()
+            elif isinstance(evicted_data, dict):
+                evicted_bytes = sum(t.numel() * t.element_size() for t in evicted_data.values() if isinstance(t, torch.Tensor))
+            else:
+                evicted_bytes = 0
             self.current_memory -= evicted_bytes
             logger.debug(f"Evicted {evicted_key}, freed {evicted_bytes/1e6:.1f}MB")
 
-        self.cache[key] = tensor
-        self.current_memory += tensor_bytes
+        self.cache[key] = data
+        self.current_memory += data_bytes
 
     def clear(self):
         self.cache.clear()
@@ -97,8 +108,9 @@ class GPTOSSNativeMoE:
             # Load all routers from single file
             with safe_open(self.shards[0], framework="pt", device="cpu") as f:
                 for layer_idx in range(self.num_layers):
-                    router_weight_key = f"model.layers.{layer_idx}.mlp.router.weight"
-                    router_bias_key = f"model.layers.{layer_idx}.mlp.router.bias"
+                    # Fixed: Use correct key names for GPT-OSS-20B
+                    router_weight_key = f"block.{layer_idx}.mlp.gate.weight"
+                    router_bias_key = f"block.{layer_idx}.mlp.gate.bias"
 
                     if router_weight_key in f.keys():
                         routers[layer_idx] = {
@@ -111,8 +123,9 @@ class GPTOSSNativeMoE:
                 shard_idx = 0 if layer_idx < 12 else 1
 
                 with safe_open(self.shards[shard_idx], framework="pt", device="cpu") as f:
-                    router_weight_key = f"model.layers.{layer_idx}.mlp.router.weight"
-                    router_bias_key = f"model.layers.{layer_idx}.mlp.router.bias"
+                    # Fixed: Use correct key names for GPT-OSS-20B
+                    router_weight_key = f"block.{layer_idx}.mlp.gate.weight"
+                    router_bias_key = f"block.{layer_idx}.mlp.gate.bias"
 
                     if router_weight_key in f.keys():
                         routers[layer_idx] = {
@@ -133,8 +146,10 @@ class GPTOSSNativeMoE:
         router = self.routers[layer_idx]
 
         # Compute routing scores
+        # Ensure dtype compatibility
+        hidden_states_bf16 = hidden_states.to(router["weight"].dtype)
         # hidden_states: [batch, seq, hidden] @ weight.T: [hidden, num_experts]
-        scores = hidden_states @ router["weight"].T + router["bias"]  # [batch, seq, num_experts]
+        scores = hidden_states_bf16 @ router["weight"].T + router["bias"]  # [batch, seq, num_experts]
 
         # Select top-k experts
         expert_weights, expert_indices = torch.topk(scores, k=self.experts_per_token, dim=-1)
@@ -165,39 +180,41 @@ class GPTOSSNativeMoE:
                 shard_idx = 0 if layer_idx < 12 else 1
 
             with safe_open(self.shards[shard_idx], framework="pt", device="cpu") as f:
-                # Load expert weights (MXFP4 format)
+                # Load expert weights (MXFP4 format) - Fixed keys for GPT-OSS-20B
                 expert_weights = {}
 
-                # Gate up projection
-                gate_up_blocks_key = f"model.layers.{layer_idx}.mlp.experts.gate_up_proj_blocks"
-                gate_up_scales_key = f"model.layers.{layer_idx}.mlp.experts.gate_up_proj_scales"
-                gate_up_bias_key = f"model.layers.{layer_idx}.mlp.experts.gate_up_proj_bias"
+                # MLP1 (up projection) - equivalent to gate_up in SwiGLU
+                mlp1_blocks_key = f"block.{layer_idx}.mlp.mlp1_weight.blocks"
+                mlp1_scales_key = f"block.{layer_idx}.mlp.mlp1_weight.scales"
+                mlp1_bias_key = f"block.{layer_idx}.mlp.mlp1_bias"
 
-                if gate_up_blocks_key in f.keys():
+                if mlp1_blocks_key in f.keys():
                     # Extract only this expert (first dim is expert index)
-                    all_blocks = f.get_tensor(gate_up_blocks_key)
-                    expert_weights["gate_up_blocks"] = all_blocks[expert_idx].cuda()
+                    all_blocks = f.get_tensor(mlp1_blocks_key)
+                    expert_weights["mlp1_blocks"] = all_blocks[expert_idx].cuda()
 
-                    all_scales = f.get_tensor(gate_up_scales_key)
-                    expert_weights["gate_up_scales"] = all_scales[expert_idx].cuda()
+                    all_scales = f.get_tensor(mlp1_scales_key)
+                    expert_weights["mlp1_scales"] = all_scales[expert_idx].cuda()
 
-                    all_bias = f.get_tensor(gate_up_bias_key)
-                    expert_weights["gate_up_bias"] = all_bias[expert_idx].cuda()
+                    if mlp1_bias_key in f.keys():
+                        all_bias = f.get_tensor(mlp1_bias_key)
+                        expert_weights["mlp1_bias"] = all_bias[expert_idx].cuda()
 
-                # Down projection
-                down_blocks_key = f"model.layers.{layer_idx}.mlp.experts.down_proj_blocks"
-                down_scales_key = f"model.layers.{layer_idx}.mlp.experts.down_proj_scales"
-                down_bias_key = f"model.layers.{layer_idx}.mlp.experts.down_proj_bias"
+                # MLP2 (down projection)
+                mlp2_blocks_key = f"block.{layer_idx}.mlp.mlp2_weight.blocks"
+                mlp2_scales_key = f"block.{layer_idx}.mlp.mlp2_weight.scales"
+                mlp2_bias_key = f"block.{layer_idx}.mlp.mlp2_bias"
 
-                if down_blocks_key in f.keys():
-                    all_blocks = f.get_tensor(down_blocks_key)
-                    expert_weights["down_blocks"] = all_blocks[expert_idx].cuda()
+                if mlp2_blocks_key in f.keys():
+                    all_blocks = f.get_tensor(mlp2_blocks_key)
+                    expert_weights["mlp2_blocks"] = all_blocks[expert_idx].cuda()
 
-                    all_scales = f.get_tensor(down_scales_key)
-                    expert_weights["down_scales"] = all_scales[expert_idx].cuda()
+                    all_scales = f.get_tensor(mlp2_scales_key)
+                    expert_weights["mlp2_scales"] = all_scales[expert_idx].cuda()
 
-                    all_bias = f.get_tensor(down_bias_key)
-                    expert_weights["down_bias"] = all_bias[expert_idx].cuda()
+                    if mlp2_bias_key in f.keys():
+                        all_bias = f.get_tensor(mlp2_bias_key)
+                        expert_weights["mlp2_bias"] = all_bias[expert_idx].cuda()
 
                 # Cache the expert
                 self.expert_cache.put(cache_key, expert_weights)
@@ -208,11 +225,54 @@ class GPTOSSNativeMoE:
     def mxfp4_to_bfloat16(self, blocks: torch.Tensor, scales: torch.Tensor) -> torch.Tensor:
         """
         Convert MXFP4 quantized weights to bfloat16
-        This is a simplified version - full implementation would handle block-wise dequantization
+        Based on OpenAI's implementation from gpt_oss/torch/weights.py
         """
-        # For now, just cast to bfloat16 (assumes pre-dequantized or fallback)
-        # Real implementation would: blocks * scales with proper reshaping
-        return blocks.to(torch.bfloat16)
+        # MXFP4 lookup table - predefined 16 values for 4-bit encoding
+        MXFP4_VALUES = torch.tensor([
+            -6.0, -4.0, -3.0, -2.0, -1.5, -1.0, -0.5, 0.0,
+            0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0
+        ], dtype=torch.bfloat16).cuda()
+
+        # Blocks shape: [expert_dim, block_groups, 16] where each uint8 contains 2 FP4 values
+        # Scales shape: [expert_dim, block_groups]
+
+        # Ensure blocks are uint8
+        if blocks.dtype != torch.uint8:
+            blocks = blocks.to(torch.uint8)
+
+        # Unpack 4-bit values (each byte contains 2 FP4 values)
+        high_nibbles = (blocks >> 4) & 0xF  # Upper 4 bits
+        low_nibbles = blocks & 0xF          # Lower 4 bits
+
+        # Flatten for indexing - convert to long for proper indexing
+        high_flat = high_nibbles.flatten().to(torch.long)
+        low_flat = low_nibbles.flatten().to(torch.long)
+
+        # Look up FP4 values from the table
+        high_values = MXFP4_VALUES[high_flat].reshape(blocks.shape)
+        low_values = MXFP4_VALUES[low_flat].reshape(blocks.shape)
+
+        # Interleave high and low values
+        shape = blocks.shape
+        unpacked = torch.zeros((*shape[:-1], shape[-1] * 2), dtype=torch.bfloat16, device=blocks.device)
+        unpacked[..., 0::2] = low_values  # Low nibble first
+        unpacked[..., 1::2] = high_values  # High nibble second
+
+        # Flatten last two dimensions for final shape
+        unpacked = unpacked.reshape(shape[0], -1)  # [expert_dim, block_groups * 32]
+
+        # Apply scales using ldexp (scales are exponents)
+        # Scales are biased uint8 exponents with bias=127 (standard FP bias)
+        # Convert from biased to unbiased exponents: scale - 127
+        scales_unbiased = scales.to(torch.int16) - 127  # e.g., 117->-10, 126->-1
+        scales_flat = scales_unbiased.flatten().unsqueeze(-1).expand(-1, 32).flatten()  # Repeat each scale 32 times
+
+        # Apply scaling: value * 2^scale
+        dequantized = torch.ldexp(unpacked.flatten(), scales_flat.to(torch.int))
+
+        # Reshape to final weight dimensions
+        final_shape = (shape[0], shape[1] * 32)  # [expert_dim, full_dimension]
+        return dequantized.reshape(final_shape).to(torch.bfloat16)
 
     def compute_expert_outputs(
         self,
@@ -245,15 +305,33 @@ class GPTOSSNativeMoE:
                     if expert_idx in experts:
                         expert = experts[expert_idx]
 
-                        # Simple FFN computation (would need proper MXFP4 dequantization)
-                        # For now, assuming weights are already in usable format
-                        # Real implementation would handle gate_up projection properly
+                        # Dequantize MXFP4 weights if present
+                        if "mlp1_blocks" in expert and "mlp1_scales" in expert:
+                            mlp1_weight = self.mxfp4_to_bfloat16(expert["mlp1_blocks"], expert["mlp1_scales"])
+                            mlp2_weight = self.mxfp4_to_bfloat16(expert["mlp2_blocks"], expert["mlp2_scales"])
 
-                        # This is simplified - actual GPT-OSS uses SwiGLU activation
-                        intermediate = token_hidden  # Placeholder
-                        expert_output = intermediate * weight
+                            # Ensure dtype compatibility
+                            token_hidden_bf16 = token_hidden.to(mlp1_weight.dtype)
 
-                        token_output += expert_output
+                            # MLP1: up projection with SwiGLU activation
+                            intermediate = torch.matmul(token_hidden_bf16, mlp1_weight.T)
+                            if "mlp1_bias" in expert:
+                                intermediate = intermediate + expert["mlp1_bias"]
+
+                            # SwiGLU activation (split and gate)
+                            gate, up = intermediate.chunk(2, dim=-1)
+                            intermediate = gate * torch.nn.functional.silu(up)
+
+                            # MLP2: down projection
+                            expert_out = torch.matmul(intermediate, mlp2_weight.T)
+                            if "mlp2_bias" in expert:
+                                expert_out = expert_out + expert["mlp2_bias"]
+
+                            # Apply expert weight
+                            token_output += expert_out * weight
+                        else:
+                            # Fallback for non-quantized weights
+                            logger.warning(f"Expert {expert_idx} missing MXFP4 blocks/scales")
 
                 output[b, s] = token_output
 

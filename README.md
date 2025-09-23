@@ -133,20 +133,24 @@ The system supports multiple model providers:
 ## 📊 Performance
 
 ### GPT-OSS-20B with MoE Optimizations
-- **Throughput**: 29.1 tokens/second
-- **Memory**: 7.3GB VRAM (vs 40GB+ baseline)
-- **First Token Latency**: 30ms
+- **Throughput**: 29.1 tokens/second (FP16), 11.1 TPS (INT8)
+- **Memory**: 7.3GB VRAM (FP16), 4.1GB (INT8 - 44% reduction)
+- **First Token Latency**: 30ms (FP16), 76ms (INT8)
 - **Configuration**: FP16 + SDPA + Top-k=4
+- **Model Weights**: 13GB pretrained weights (verified loaded)
+- **Batch Scaling**: Tested 1-32, optimal batch=8 for throughput
 
-### Optimization Status
+### Optimization Status (Updated 2025-09-23)
 | Optimization | Status | Impact |
 |--------------|--------|--------|
 | FP16 Precision | ✅ Enabled | Baseline |
 | SDPA/Flash Attention | ✅ Enabled | +15% speed |
 | Top-k Expert Selection | ✅ Enabled (k=4) | -87% memory |
 | Async Loading | ✅ Enabled | Faster startup |
+| Weight Loading | ✅ Fixed | Real 13GB weights loaded |
+| INT8 Quantization | ✅ Fixed (Optional) | -44% memory, -62% speed |
+| Batch Size Testing | ✅ Implemented | 1-32 batch framework |
 | torch.compile | ❌ Disabled | -88% speed (regression) |
-| INT8 Quantization | ❌ Disabled | -80% speed (issues) |
 
 ## 🛡️ Safety Features
 

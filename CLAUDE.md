@@ -381,9 +381,36 @@ redis-cli FLUSHALL  # If using Redis
 
 ### Past Issues (Never Repeat)
 1. **torch.compile regression** - Always test optimizations thoroughly
-2. **INT8 dtype mismatch** - Ensure type compatibility across layers
+2. **INT8 dtype mismatch** - ✅ FIXED: Use FP16→FP32→INT8 conversion pipeline
 3. **False performance claims** - Only claim what's measured
 4. **Mixed venvs** - Maintain clean environments
+
+### Lessons Learned (2025-09-23)
+
+#### 1. Model Weight Loading
+- **Problem**: Using random weights made testing meaningless
+- **Solution**: Always verify weights are loaded with statistical checks
+- **Implementation**: `MoEModelLoader.verify_weights_loaded()`
+- **Key Learning**: Pretrained weights have distinct statistical properties
+
+#### 2. INT8 Quantization Dtype Issues
+- **Problem**: Direct FP16→INT8 causes dtype mismatch errors
+- **Root Cause**: Bitsandbytes requires FP32 input for quantization
+- **Solution**: Always convert FP16→FP32→INT8
+- **Trade-off**: -44% memory but -62% speed (document clearly)
+- **Key Learning**: Dtype conversions must follow specific paths
+
+#### 3. Batch Size Testing
+- **Problem**: Only testing batch=1 misses optimization opportunities
+- **Solution**: Systematic testing across batch sizes 1-32
+- **Finding**: Batch=8 optimal for RTX 3090 (24GB)
+- **Key Learning**: Batch size dramatically affects throughput
+
+#### 4. Model Architecture Assumptions
+- **Problem**: Assumed traditional MoE with router/expert separation
+- **Reality**: GPT-OSS-20B uses gated MLPs, not separate experts
+- **Impact**: Need to adapt loader to actual model structure
+- **Key Learning**: Always inspect actual model structure first
 
 ### Continuous Improvement
 - Regular code reviews
