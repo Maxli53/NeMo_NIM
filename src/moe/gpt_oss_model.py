@@ -252,9 +252,10 @@ class GPTOSSModel(nn.Module):
         temperature: float = 0.7,
         top_p: float = 0.9,
         top_k: int = 50,
+        max_context_length: int = 2048,
     ) -> torch.LongTensor:
         """
-        Generate text using the model
+        Memory-safe text generation with sliding window
 
         Args:
             input_ids: Initial input token IDs
@@ -262,21 +263,66 @@ class GPTOSSModel(nn.Module):
             temperature: Sampling temperature
             top_p: Nucleus sampling threshold
             top_k: Top-k sampling threshold
+            max_context_length: Maximum context length to keep in memory
 
         Returns:
             Generated token IDs
         """
         self.eval()
 
-        for _ in range(max_new_tokens):
-            # Get logits for the last position
-            outputs = self.forward(input_ids)
-            if isinstance(outputs, dict):
-                logits = outputs["logits"]
-            else:
-                logits = outputs
+        # Check initial memory
+        if torch.cuda.is_available():
+            initial_memory = torch.cuda.memory_allocated()
+            memory_limit = 20e9  # 20GB safety limit
 
-            next_token_logits = logits[:, -1, :]
+        generated_tokens = []
+
+        for i in range(max_new_tokens):
+            # Memory management: clear cache periodically
+            if i > 0 and i % 10 == 0:
+                torch.cuda.empty_cache()
+
+            # Check memory usage
+            if torch.cuda.is_available():
+                current_memory = torch.cuda.memory_allocated()
+                if current_memory > memory_limit:
+                    logger.warning(f"Memory usage high: {current_memory/1e9:.2f}GB, clearing cache")
+                    torch.cuda.empty_cache()
+                    # Force clear expert cache if needed
+                    if hasattr(self, 'moe_handler'):
+                        self.moe_handler.expert_cache.clear()
+
+            # Sliding window: only use last max_context_length tokens
+            if input_ids.shape[1] > max_context_length:
+                context_ids = input_ids[:, -max_context_length:]
+                logger.debug(f"Truncating context from {input_ids.shape[1]} to {max_context_length} tokens")
+            else:
+                context_ids = input_ids
+
+            # Forward pass with context window
+            try:
+                outputs = self.forward(context_ids)
+                if isinstance(outputs, dict):
+                    logits = outputs["logits"]
+                else:
+                    logits = outputs
+
+                # Get logits for the last position
+                next_token_logits = logits[:, -1, :].contiguous()
+
+            except RuntimeError as e:
+                if "out of memory" in str(e):
+                    logger.error("CUDA out of memory during generation, clearing cache")
+                    torch.cuda.empty_cache()
+                    if hasattr(self, 'moe_handler'):
+                        self.moe_handler.expert_cache.clear()
+                    # Try with smaller context
+                    context_ids = context_ids[:, -min(128, context_ids.shape[1]):]
+                    outputs = self.forward(context_ids)
+                    logits = outputs["logits"] if isinstance(outputs, dict) else outputs
+                    next_token_logits = logits[:, -1, :].contiguous()
+                else:
+                    raise e
 
             # Apply temperature
             if temperature > 0:
@@ -304,8 +350,16 @@ class GPTOSSModel(nn.Module):
             probs = F.softmax(next_token_logits, dim=-1)
             next_token = torch.multinomial(probs, num_samples=1)
 
+            # Store generated token
+            generated_tokens.append(next_token)
+
             # Append to sequence
             input_ids = torch.cat([input_ids, next_token], dim=1)
+
+            # Clean up intermediate tensors
+            del logits, next_token_logits, probs
+            if 'sorted_logits' in locals():
+                del sorted_logits, sorted_indices, cumulative_probs
 
         return input_ids
 

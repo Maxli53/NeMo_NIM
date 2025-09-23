@@ -43,6 +43,27 @@ class ExpertLRUCache:
         else:
             data_bytes = 0
 
+        # Safety check: if single item is too large, don't cache it
+        if data_bytes > self.max_memory_bytes * 0.5:
+            logger.warning(f"Expert {key} too large ({data_bytes/1e9:.2f}GB), not caching")
+            return
+
+        # Aggressive eviction if we're using too much memory
+        if self.current_memory > self.max_memory_bytes * 0.8:
+            logger.debug(f"Cache at {self.current_memory/1e9:.2f}GB, clearing old entries")
+            # Clear half the cache
+            items_to_remove = len(self.cache) // 2
+            for _ in range(items_to_remove):
+                if self.cache:
+                    evicted_key, evicted_data = self.cache.popitem(last=False)
+                    if isinstance(evicted_data, torch.Tensor):
+                        evicted_bytes = evicted_data.numel() * evicted_data.element_size()
+                    elif isinstance(evicted_data, dict):
+                        evicted_bytes = sum(t.numel() * t.element_size() for t in evicted_data.values() if isinstance(t, torch.Tensor))
+                    else:
+                        evicted_bytes = 0
+                    self.current_memory -= evicted_bytes
+
         # Evict old items if needed
         while self.current_memory + data_bytes > self.max_memory_bytes and self.cache:
             evicted_key, evicted_data = self.cache.popitem(last=False)
@@ -55,8 +76,12 @@ class ExpertLRUCache:
             self.current_memory -= evicted_bytes
             logger.debug(f"Evicted {evicted_key}, freed {evicted_bytes/1e6:.1f}MB")
 
-        self.cache[key] = data
-        self.current_memory += data_bytes
+        # Only cache if we have room
+        if self.current_memory + data_bytes <= self.max_memory_bytes:
+            self.cache[key] = data
+            self.current_memory += data_bytes
+        else:
+            logger.warning(f"Cache full, not caching {key}")
 
     def clear(self):
         self.cache.clear()

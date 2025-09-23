@@ -25,7 +25,8 @@
       "Read(//c/mnt/c/Users/maxli/PycharmProjects/PythonProject/AI_agents/**)",
       "Bash(grep:*)",
       "Bash(awk:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []
