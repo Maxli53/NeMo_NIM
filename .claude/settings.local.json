@@ -22,7 +22,8 @@
       "Bash(rm:*)",
       "Bash(git log:*)",
       "Bash(tree:*)",
-      "Read(//c/mnt/c/Users/maxli/PycharmProjects/PythonProject/AI_agents/**)"
+      "Read(//c/mnt/c/Users/maxli/PycharmProjects/PythonProject/AI_agents/**)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []
