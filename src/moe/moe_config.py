@@ -262,19 +262,19 @@ def load_config(path: Optional[str] = None) -> MoEConfig:
 if __name__ == "__main__":
     # Show production configuration
     config = DEFAULT_CONFIG
-    print("\nProduction Configuration (2025-09-20 Validated):")
-    print("="*60)
-    print(f"✅ Async I/O: {config.async_io.enabled} (7.49× speedup)")
-    print(f"✅ Tiered Cache: {config.cache.mode == 'tiered'} (65% hit rate)")
-    print(f"❌ CUDA Kernels: {config.cuda_kernels.enabled} (requires Triton - 15% slower without)")
-    print(f"❌ Multi-GPU: {config.multi_gpu.enabled} (single GPU system)")
-    print("="*60)
+    logger.info("\nProduction Configuration (2025-09-20 Validated):")
+    logger.info("="*60)
+    logger.info(f"✅ Async I/O: {config.async_io.enabled} (7.49× speedup)")
+    logger.info(f"✅ Tiered Cache: {config.cache.mode == 'tiered'} (65% hit rate)")
+    logger.info(f"❌ CUDA Kernels: {config.cuda_kernels.enabled} (requires Triton - 15% slower without)")
+    logger.info(f"❌ Multi-GPU: {config.multi_gpu.enabled} (single GPU system)")
+    logger.info("="*60)
 
     # Save production config
     config.to_yaml("moe_config_production.yaml")
-    print("\nProduction configuration saved to moe_config_production.yaml")
+    logger.info("\nProduction configuration saved to moe_config_production.yaml")
 
     # Show active optimizations
-    print(f"\nActive optimizations: {config.get_active_optimizations()}")
-    print("\nMemory efficiency: 87.5% reduction (native MoE architecture)")
-    print("Expected throughput: ~2,669 tokens/sec (from 333 baseline)")
+    logger.info(f"\nActive optimizations: {config.get_active_optimizations()}")
+    logger.info("\nMemory efficiency: 87.5% reduction (native MoE architecture)")
+    logger.info("Expected throughput: ~2,669 tokens/sec (from 333 baseline)")

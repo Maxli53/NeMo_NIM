@@ -190,14 +190,14 @@ def test_expert_cache():
     # Use Windows path for Windows execution
     model_path = "C:/Users/maxli/.cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
 
-    print("=" * 60)
-    print("EXPERT LRU CACHE TEST")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("EXPERT LRU CACHE TEST")
+    logger.info("=" * 60)
 
     # Create cache with 1GB limit for testing
     cache = ExpertLRUCache(model_path, max_size_gb=1.0)
 
-    print("\n1. Testing cache with real expert loading...")
+    logger.info("\n1. Testing cache with real expert loading...")
 
     # Test loading different experts
     test_cases = [
@@ -209,7 +209,7 @@ def test_expert_cache():
     ]
 
     for layer_idx, expert_idx in test_cases:
-        print(f"\nLoading L{layer_idx}_E{expert_idx}...")
+        logger.info(f"\nLoading L{layer_idx}_E{expert_idx}...")
         start = time.time()
         expert = cache.get_expert(layer_idx, expert_idx)
         elapsed = time.time() - start
@@ -217,29 +217,29 @@ def test_expert_cache():
         if expert:
             num_params = sum(t.numel() for t in expert.values() if isinstance(t, torch.Tensor))
             size_mb = sum(t.numel() * t.element_size() for t in expert.values() if isinstance(t, torch.Tensor)) / 1e6
-            print(f"  Loaded in {elapsed*1000:.1f}ms")
-            print(f"  Parameters: {num_params:,}")
-            print(f"  Size: {size_mb:.1f}MB")
+            logger.info(f"  Loaded in {elapsed*1000:.1f}ms")
+            logger.info(f"  Parameters: {num_params:,}")
+            logger.info(f"  Size: {size_mb:.1f}MB")
         else:
-            print(f"  Failed to load!")
+            logger.info(f"  Failed to load!")
 
     # Print statistics
-    print("\n2. Cache Statistics:")
+    logger.info("\n2. Cache Statistics:")
     stats = cache.get_stats()
     for key, value in stats.items():
         if isinstance(value, float) and key.endswith("rate"):
-            print(f"   {key}: {value:.1%}")
+            logger.info(f"   {key}: {value:.1%}")
         elif isinstance(value, float):
-            print(f"   {key}: {value:.2f}")
+            logger.info(f"   {key}: {value:.2f}")
         else:
-            print(f"   {key}: {value}")
+            logger.info(f"   {key}: {value}")
 
     # Memory usage
     if torch.cuda.is_available():
-        print(f"\n3. GPU Memory:")
-        print(f"   Allocated: {torch.cuda.memory_allocated()/1e9:.3f} GB")
+        logger.info(f"\n3. GPU Memory:")
+        logger.info(f"   Allocated: {torch.cuda.memory_allocated()/1e9:.3f} GB")
 
-    print("\n✅ Expert cache test complete!")
+    logger.info("\n✅ Expert cache test complete!")
     return cache
 
 

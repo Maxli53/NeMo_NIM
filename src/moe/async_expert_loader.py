@@ -429,6 +429,6 @@ if __name__ == "__main__":
     success = asyncio.run(validate_async_loading(config))
 
     if success:
-        print("✅ Async expert loading validation passed!")
+        logger.info("✅ Async expert loading validation passed!")
     else:
-        print("❌ Async expert loading validation failed")
+        logger.info("❌ Async expert loading validation failed")

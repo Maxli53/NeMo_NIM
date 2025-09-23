@@ -578,6 +578,6 @@ if __name__ == "__main__":
     success = validate_tiered_cache(config)
 
     if success:
-        print("✅ Tiered cache validation passed!")
+        logger.info("✅ Tiered cache validation passed!")
     else:
-        print("❌ Tiered cache validation failed")
+        logger.info("❌ Tiered cache validation failed")

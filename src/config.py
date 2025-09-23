@@ -23,7 +23,7 @@ class EmbeddingProvider(Enum):
 @dataclass
 class ModelConfig:
     provider: ModelProvider = ModelProvider.LOCAL
-    model: str = "gpt-oss-20b"  # Default to GPT-OSS
+    model: str = os.getenv("MODEL_NAME", "gpt-oss-20b")  # From environment
     temperature: float = 0.7
     max_tokens: int = 2000
     device: str = "auto"  # auto, cuda, cpu

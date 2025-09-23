@@ -560,13 +560,13 @@ if __name__ == "__main__":
 
     # Run validation
     if validate_multi_gpu(config):
-        print("Multi-GPU validation successful!")
+        logger.info("Multi-GPU validation successful!")
 
         # Run scaling benchmark
         scaling_results = benchmark_scaling(config)
 
-        print("\nScaling Benchmark Results:")
+        logger.info("\nScaling Benchmark Results:")
         for key, value in scaling_results.items():
-            print(f"  {key}: {value:.2f}")
+            logger.info(f"  {key}: {value:.2f}")
     else:
-        print("Multi-GPU validation failed or not enough GPUs available")
+        logger.info("Multi-GPU validation failed or not enough GPUs available")

@@ -268,20 +268,20 @@ def test_complete_forward():
     """Test the complete native MoE forward pass"""
     model_path = "C:/Users/maxli/.cache/huggingface/hub/models--openai--gpt-oss-20b/snapshots/6cee5e81ee83917806bbde320786a8fb61efebee"
 
-    print("=" * 60)
-    print("COMPLETE NATIVE MoE FORWARD PASS TEST")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("COMPLETE NATIVE MoE FORWARD PASS TEST")
+    logger.info("=" * 60)
 
     # Initialize model
-    print("\n1. Initializing Native MoE Model...")
+    logger.info("\n1. Initializing Native MoE Model...")
     model = GPTOSSNativeMoE(model_path, cache_size_gb=5.0)
 
     # Test input
     batch_size, seq_len = 1, 128
     input_ids = torch.randint(0, 50257, (batch_size, seq_len)).cuda()
 
-    print(f"\n2. Running forward pass...")
-    print(f"   Input shape: {input_ids.shape}")
+    logger.info(f"\n2. Running forward pass...")
+    logger.info(f"   Input shape: {input_ids.shape}")
 
     # Forward pass
     start = time.time()
@@ -289,30 +289,30 @@ def test_complete_forward():
     elapsed = time.time() - start
 
     # Results
-    print(f"\n3. Forward Pass Results:")
-    print(f"   Time: {elapsed*1000:.1f}ms")
-    print(f"   Output shape: {outputs['hidden_states'].shape}")
+    logger.info(f"\n3. Forward Pass Results:")
+    logger.info(f"   Time: {elapsed*1000:.1f}ms")
+    logger.info(f"   Output shape: {outputs['hidden_states'].shape}")
 
-    print(f"\n4. Expert Loading Statistics:")
+    logger.info(f"\n4. Expert Loading Statistics:")
     stats = outputs["stats"]
     for key, value in stats.items():
         if isinstance(value, float):
-            print(f"   {key}: {value:.3f}")
+            logger.info(f"   {key}: {value:.3f}")
         else:
-            print(f"   {key}: {value}")
+            logger.info(f"   {key}: {value}")
 
     # Calculate efficiency
     total_possible = model.num_layers * model.num_experts
     actually_loaded = stats["experts_loaded"]
     efficiency = 1 - (actually_loaded / total_possible)
 
-    print(f"\n5. Efficiency Analysis:")
-    print(f"   Total possible experts: {total_possible}")
-    print(f"   Actually loaded: {actually_loaded}")
-    print(f"   Efficiency: {efficiency*100:.1f}%")
-    print(f"   Cache hit rate: {stats['cache_hits']/(stats['cache_hits']+stats['experts_loaded'])*100:.1f}%")
+    logger.info(f"\n5. Efficiency Analysis:")
+    logger.info(f"   Total possible experts: {total_possible}")
+    logger.info(f"   Actually loaded: {actually_loaded}")
+    logger.info(f"   Efficiency: {efficiency*100:.1f}%")
+    logger.info(f"   Cache hit rate: {stats['cache_hits']/(stats['cache_hits']+stats['experts_loaded'])*100:.1f}%")
 
-    print("\n✅ Complete forward pass test successful!")
+    logger.info("\n✅ Complete forward pass test successful!")
     return model
 
 

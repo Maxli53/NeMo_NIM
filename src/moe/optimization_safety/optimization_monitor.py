@@ -486,7 +486,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     
     def alert_handler(opt, violations, alert):
-        print(f"ALERT for {opt}: {violations}")
+        logger.info(f"ALERT for {opt}: {violations}")
         
     monitor = OptimizationHealthMonitor(alert_callback=alert_handler)
     
@@ -516,9 +516,9 @@ if __name__ == "__main__":
         
     # Generate report
     report = monitor.generate_report()
-    print("\nHealth Report:")
-    print(json.dumps(report, indent=2, default=str))
+    logger.info("\nHealth Report:")
+    logger.info(json.dumps(report, indent=2, default=str))
     
     # Export metrics
     monitor.export_metrics("test_metrics.json")
-    print("\nMetrics exported.")
+    logger.info("\nMetrics exported.")

@@ -45,14 +45,14 @@ class OptimizationFlags:
     multi_gpu: bool = False              # Multi-GPU parallelization - N/A: single GPU only
     
     # === PHASE 1: Quick Wins ===
-    torch_compile: bool = True           # torch.compile JIT - ENABLED: 4.97× speedup in WSL
-    dynamic_batching: bool = True        # Dynamic batch sizing - ENABLED: optimal batch size found
-    flash_attention: bool = True         # Flash Attention v2 - ENABLED: fallback to standard attention
-    gradient_accumulation: bool = True   # Gradient accumulation - ENABLED: effective batch size
-    
+    torch_compile: bool = False          # torch.compile JIT - DISABLED: causes 88% SLOWDOWN (tested 2024-09-23)
+    dynamic_batching: bool = False       # Dynamic batch sizing - DISABLED: not tested with batch>1
+    flash_attention: bool = True         # SDPA (Flash Attention) - ENABLED: 29.1 TPS achieved
+    gradient_accumulation: bool = False  # Gradient accumulation - DISABLED: inference only
+
     # === PHASE 2: Quantization Pipeline ===
-    int8_weights: bool = True            # INT8 weight quantization - ENABLED: 4× memory reduction in WSL
-    mixed_precision: bool = False        # Mixed INT8/FP16
+    int8_weights: bool = False           # INT8 weight quantization - DISABLED: dtype mismatch, 5x slower
+    mixed_precision: bool = False        # Mixed precision - DISABLED: 7% slower than baseline
     int4_experimental: bool = False      # INT4 (high risk)
     
     # === PHASE 3: Advanced Kernels ===
@@ -639,22 +639,22 @@ if __name__ == "__main__":
     center = get_control_center()
     
     # Check all optimization statuses
-    print("\nOptimization Status:")
-    print("="*60)
+    logger.info("Optimization Status:")
+    logger.info("="*60)
     
     for name in center.configs:
         status = center.get_optimization_status(name)
-        print(f"{name:25} {status['status']:10} {status['health']}")
+        logger.info(f"{name:25} {status['status']:10} {status['health']}")
         
     # Example: Enable dynamic batching at 1% traffic
-    print("\nEnabling dynamic_batching at 1% traffic...")
+    logger.info("\nEnabling dynamic_batching at 1% traffic...")
     center.enable_optimization("dynamic_batching", traffic_percentage=0.01)
-    
+
     # Check if should use for a request
     for i in range(10):
         should_use = center.should_use_optimization("dynamic_batching", f"request_{i}")
-        print(f"Request {i}: {'USE' if should_use else 'SKIP'}")
-        
+        logger.info(f"Request {i}: {'USE' if should_use else 'SKIP'}")
+
     # Save configuration
     center.save_config()
-    print("\nConfiguration saved.")
+    logger.info("\nConfiguration saved.")

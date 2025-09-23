@@ -486,13 +486,13 @@ if __name__ == "__main__":
     manager = create_quantization_manager(config)
 
     # Estimate model sizes
-    print("\nModel size estimates for GPT-OSS-20B:")
+    logger.info("\nModel size estimates for GPT-OSS-20B:")
     sizes = manager.estimate_model_size()
     for format_name, size_gb in sizes.items():
-        print(f"  {format_name}: {size_gb:.2f} GB")
+        logger.info(f"  {format_name}: {size_gb:.2f} GB")
 
     # Simulate expert quantization
-    print("\nSimulating expert quantization...")
+    logger.info("\nSimulating expert quantization...")
 
     # Create dummy expert weights
     expert_weights = {
@@ -506,7 +506,7 @@ if __name__ == "__main__":
     original_bytes = sum(
         t.numel() * t.element_size() for t in expert_weights.values()
     )
-    print(f"Original expert size: {original_bytes / 1e6:.2f} MB")
+    logger.info(f"Original expert size: {original_bytes / 1e6:.2f} MB")
 
     if BNB_AVAILABLE:
         # Quantize
@@ -514,12 +514,12 @@ if __name__ == "__main__":
 
         # Get savings
         savings = manager.get_memory_savings()
-        print(f"Memory savings: {savings['total_savings']:.1%}")
+        logger.info(f"Memory savings: {savings['total_savings']:.1%}")
 
         # Dequantize for computation
         dequantized = manager.dequantize_expert(quantized, expert_id=0, layer_idx=0)
-        print(f"Dequantized dtype: {dequantized['up_proj'].dtype}")
+        logger.info(f"Dequantized dtype: {dequantized['up_proj'].dtype}")
     else:
-        print("Bitsandbytes not available - install with: pip install bitsandbytes")
+        logger.info("Bitsandbytes not available - install with: pip install bitsandbytes")
 
-    print("\nQuantization manager ready for integration!")
+    logger.info("\nQuantization manager ready for integration!")

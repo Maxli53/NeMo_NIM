@@ -16,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.moe.expert_cache import ExpertLRUCache
 from src.moe.optimization_safety.optimization_control_center import OptimizationControlCenter
-from src.moe.optimization_safety.optimization_monitor import HealthMonitor
+from src.moe.optimization_safety.optimization_monitor import OptimizationHealthMonitor as HealthMonitor
 
 
 class TestExpertRouting:

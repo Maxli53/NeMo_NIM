@@ -344,8 +344,8 @@ if __name__ == "__main__":
         success = validate_kernel_fusion(config)
 
         if success:
-            print("CUDA kernel fusion is working correctly!")
+            logger.info("CUDA kernel fusion is working correctly!")
         else:
-            print("CUDA kernel fusion validation failed")
+            logger.info("CUDA kernel fusion validation failed")
     else:
-        print("Triton not available, install with: pip install triton")
+        logger.info("Triton not available, install with: pip install triton")

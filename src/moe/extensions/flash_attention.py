@@ -350,9 +350,9 @@ def benchmark_flash_attention():
         torch.cuda.synchronize()
         flash_time = time.time() - start
 
-        print(f"Flash Attention: {flash_time:.3f}s")
+        logger.info(f"Flash Attention: {flash_time:.3f}s")
     else:
-        print("Flash Attention not available")
+        logger.info("Flash Attention not available")
         flash_time = float('inf')
 
     # Benchmark Standard Attention
@@ -365,42 +365,42 @@ def benchmark_flash_attention():
     torch.cuda.synchronize()
     standard_time = time.time() - start
 
-    print(f"Standard Attention: {standard_time:.3f}s")
+    logger.info(f"Standard Attention: {standard_time:.3f}s")
 
     if flash_time < float('inf'):
         speedup = standard_time / flash_time
-        print(f"Speedup: {speedup:.2f}×")
+        logger.info(f"Speedup: {speedup:.2f}×")
 
     # Check memory usage
     if torch.cuda.is_available():
-        print(f"\nMemory usage:")
-        print(f"  Allocated: {torch.cuda.memory_allocated() / 1e9:.2f} GB")
-        print(f"  Reserved: {torch.cuda.memory_reserved() / 1e9:.2f} GB")
+        logger.info(f"\nMemory usage:")
+        logger.info(f"  Allocated: {torch.cuda.memory_allocated() / 1e9:.2f} GB")
+        logger.info(f"  Reserved: {torch.cuda.memory_reserved() / 1e9:.2f} GB")
 
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
-    print("Flash Attention v2 Implementation")
-    print("=" * 60)
+    logger.info("Flash Attention v2 Implementation")
+    logger.info("=" * 60)
 
     # Check hardware support
     if torch.cuda.is_available():
         device = torch.cuda.current_device()
         name = torch.cuda.get_device_name(device)
         capability = torch.cuda.get_device_capability(device)
-        print(f"GPU: {name}")
-        print(f"Compute Capability: {capability[0]}.{capability[1]}")
+        logger.info(f"GPU: {name}")
+        logger.info(f"Compute Capability: {capability[0]}.{capability[1]}")
 
         if capability[0] >= 8:
-            print("✓ Hardware supports Flash Attention v2")
+            logger.info("✓ Hardware supports Flash Attention v2")
         else:
-            print("✗ Hardware does not support Flash Attention v2")
-            print("  Ampere (RTX 30xx) or newer required")
+            logger.info("✗ Hardware does not support Flash Attention v2")
+            logger.info("  Ampere (RTX 30xx) or newer required")
 
     else:
-        print("No CUDA device available")
+        logger.info("No CUDA device available")
 
-    print("\nRunning benchmark...")
-    print("-" * 60)
+    logger.info("\nRunning benchmark...")
+    logger.info("-" * 60)
     benchmark_flash_attention()

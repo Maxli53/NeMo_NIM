@@ -318,16 +318,16 @@ if __name__ == "__main__":
     
     # Auto-tune batch size
     optimal = manager.auto_tune_batch_size()
-    print(f"Optimal batch size: {optimal}")
+    logger.info(f"Optimal batch size: {optimal}")
     
     # Profile different batch sizes
     results = manager.profile_batch_performance([1, 2, 4, 8, 16, 32])
     
     # Print results
-    print("\nBatch Size Performance:")
+    logger.info("\nBatch Size Performance:")
     for batch_size, metrics in results.items():
-        print(f"  {batch_size}: {metrics['throughput_samples_per_sec']:.1f} samples/sec")
+        logger.info(f"  {batch_size}: {metrics['throughput_samples_per_sec']:.1f} samples/sec")
     
     # Memory stats
     stats = manager.get_memory_stats()
-    print(f"\nMemory Stats: {stats}")
+    logger.info(f"\nMemory Stats: {stats}")

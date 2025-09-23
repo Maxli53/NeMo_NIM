@@ -358,7 +358,7 @@ if __name__ == "__main__":
     wrapper = TorchCompileWrapper(config)
 
     # Test expert mixer optimization
-    print("\nTesting expert mixer optimization...")
+    logger.info("\nTesting expert mixer optimization...")
     optimized_mixer = wrapper.optimize_expert_mixer()
 
     # Create test data
@@ -367,12 +367,12 @@ if __name__ == "__main__":
     weights = torch.softmax(torch.randn(batch_size, seq_len, k), dim=-1)
 
     # Warm-up run (triggers compilation)
-    print("Warm-up run (compilation)...")
+    logger.info("Warm-up run (compilation)...")
     output = optimized_mixer(expert_outputs, weights)
-    print(f"Output shape: {output.shape}")
+    logger.info(f"Output shape: {output.shape}")
 
     # Benchmark
-    print("\nBenchmarking...")
+    logger.info("\nBenchmarking...")
     import time
 
     # Original
@@ -382,10 +382,10 @@ if __name__ == "__main__":
     torch.cuda.synchronize() if torch.cuda.is_available() else None
     compiled_time = time.perf_counter() - start
 
-    print(f"Time with torch.compile: {compiled_time:.3f}s")
+    logger.info(f"Time with torch.compile: {compiled_time:.3f}s")
 
     # Get statistics
     stats = wrapper.get_statistics()
-    print(f"\nStatistics: {stats}")
+    logger.info(f"\nStatistics: {stats}")
 
-    print("\ntorch.compile wrapper ready for integration!")
+    logger.info("\ntorch.compile wrapper ready for integration!")
