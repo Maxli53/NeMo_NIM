@@ -3,6 +3,8 @@
 ## 🎯 Purpose
 This document ensures we maintain professional development standards and never compromise on quality, safety, or best practices for the integrated AI Agents + MoE system.
 
+**📊 For current project status, see [PROJECT_STATUS.md](PROJECT_STATUS.md)**
+
 ## 🛡️ Core Principles
 
 ### 1. Safety First

@@ -23,7 +23,8 @@
       "Bash(git log:*)",
       "Bash(tree:*)",
       "Read(//c/mnt/c/Users/maxli/PycharmProjects/PythonProject/AI_agents/**)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(awk:*)"
     ],
     "deny": [],
     "ask": []

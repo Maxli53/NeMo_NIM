@@ -4,6 +4,8 @@
 
 A professional multi-agent discussion system that leverages multiple AI models including GPT-OSS-20B through an optimized Mixture of Experts (MoE) implementation.
 
+**📊 For current project status, see [PROJECT_STATUS.md](PROJECT_STATUS.md)**
+
 ## 🏗️ Architecture
 
 This project consists of two integrated systems:
