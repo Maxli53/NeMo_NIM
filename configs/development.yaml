@@ -1,0 +1,28 @@
+# Development Configuration
+model:
+  path: "gpt-oss-20b/original"
+  precision: "fp16"
+  num_experts: 32
+  experts_per_token: 4
+
+optimization:
+  sdpa: true
+  torch_compile: false
+  int8: false
+  mixed_precision: false
+
+inference:
+  batch_size: 1
+  max_sequence_length: 128
+  temperature: 0.7
+
+monitoring:
+  log_level: "DEBUG"
+  metrics_interval: 10
+  health_check: true
+  verbose: true
+
+debug:
+  profile_memory: true
+  trace_execution: true
+  save_intermediate: true

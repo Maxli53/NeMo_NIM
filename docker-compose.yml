@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  moe-inference:
+    build:
+      context: .
+      target: production
+    image: ai-agents-moe:latest
+    container_name: moe-server
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./gpt-oss-20b:/app/gpt-oss-20b:ro
+      - ./logs:/app/logs
+      - ./configs:/app/configs:ro
+    environment:
+      - MODEL_PATH=/app/gpt-oss-20b/original
+      - LOG_LEVEL=INFO
+      - CUDA_VISIBLE_DEVICES=0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  moe-dev:
+    build:
+      context: .
+      target: development
+    image: ai-agents-moe:dev
+    container_name: moe-dev
+    volumes:
+      - .:/app
+    environment:
+      - LOG_LEVEL=DEBUG
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: bash
+    stdin_open: true
+    tty: true

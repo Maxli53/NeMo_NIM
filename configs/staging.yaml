@@ -1,0 +1,28 @@
+# Staging Configuration
+model:
+  path: "gpt-oss-20b/original"
+  precision: "fp16"
+  num_experts: 32
+  experts_per_token: 4
+
+optimization:
+  sdpa: true
+  torch_compile: false
+  int8: false
+  mixed_precision: false
+
+inference:
+  batch_size: 1
+  max_sequence_length: 128
+  temperature: 0.7
+
+monitoring:
+  log_level: "INFO"
+  metrics_interval: 30
+  health_check: true
+  verbose: false
+
+testing:
+  smoke_tests: true
+  performance_checks: true
+  rollback_enabled: true
