@@ -46,9 +46,9 @@ class OptimizationFlags:
     
     # === PHASE 1: Quick Wins ===
     torch_compile: bool = True           # torch.compile JIT - ENABLED: 4.97× speedup in WSL
-    dynamic_batching: bool = False       # Dynamic batch sizing
-    flash_attention: bool = False        # Flash Attention v2
-    gradient_accumulation: bool = False  # Gradient accumulation
+    dynamic_batching: bool = True        # Dynamic batch sizing - ENABLED: optimal batch size found
+    flash_attention: bool = True         # Flash Attention v2 - ENABLED: fallback to standard attention
+    gradient_accumulation: bool = True   # Gradient accumulation - ENABLED: effective batch size
     
     # === PHASE 2: Quantization Pipeline ===
     int8_weights: bool = True            # INT8 weight quantization - ENABLED: 4× memory reduction in WSL

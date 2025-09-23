@@ -7,7 +7,16 @@
       "Bash(git push:*)",
       "Bash(git rm:*)",
       "Bash(git filter-branch:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(python:*)",
+      "Bash(echo:*)",
+      "Bash(pip install:*)",
+      "Bash(apt list:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(nvcc:*)",
+      "Bash(nvidia-smi:*)",
+      "Read(//c/Users/maxli/Downloads/**)",
+      "Bash(pip uninstall:*)"
     ],
     "deny": [],
     "ask": []
