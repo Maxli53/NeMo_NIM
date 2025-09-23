@@ -16,7 +16,12 @@
       "Bash(nvcc:*)",
       "Bash(nvidia-smi:*)",
       "Read(//c/Users/maxli/Downloads/**)",
-      "Bash(pip uninstall:*)"
+      "Bash(pip uninstall:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(rm:*)",
+      "Bash(git log:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

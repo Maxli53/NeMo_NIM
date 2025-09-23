@@ -1,0 +1,67 @@
+{
+  "timestamp": "2025-09-23T15:27:45.466707",
+  "environment": {
+    "pytorch": "2.8.0+cu128",
+    "cuda": "12.8",
+    "device": "NVIDIA GeForce RTX 3090",
+    "vram_gb": 25.769279488
+  },
+  "configurations": {
+    "fp16_12layers": {
+      "avg_latency_s": 1.10475772933205,
+      "std_latency_s": 0.06840196260313378,
+      "avg_first_token_ms": 16.0996916674776,
+      "avg_tps": 57.93125343299945,
+      "peak_memory_gb": 4.850849792,
+      "runs": 3,
+      "tokens_per_run": 64,
+      "status": "success"
+    },
+    "fp16_24layers": {
+      "avg_latency_s": 2.196283269999791,
+      "std_latency_s": 0.14353803660684059,
+      "avg_first_token_ms": 29.84547833329998,
+      "avg_tps": 29.140139104190364,
+      "peak_memory_gb": 7.26821888,
+      "runs": 3,
+      "tokens_per_run": 64,
+      "status": "success"
+    },
+    "int8_fixed": {
+      "status": "failed",
+      "error": "mat1 and mat2 must have the same dtype, but got Half and Float",
+      "avg_latency_s": 0,
+      "std_latency_s": 0,
+      "avg_first_token_ms": 0,
+      "avg_tps": 0,
+      "peak_memory_gb": 0
+    },
+    "sdpa_attention": {
+      "avg_latency_s": 1.093120651999925,
+      "std_latency_s": 0.1772542843481297,
+      "avg_first_token_ms": 16.146203998990433,
+      "avg_tps": 58.54797444628682,
+      "peak_memory_gb": 4.850849792,
+      "runs": 3,
+      "tokens_per_run": 64,
+      "status": "success"
+    },
+    "int8_sdpa_combined": {
+      "avg_latency_s": 5.769266525331962,
+      "std_latency_s": 0.12374620181757462,
+      "avg_first_token_ms": 75.75496799957666,
+      "avg_tps": 11.09326458033891,
+      "peak_memory_gb": 4.063586816,
+      "runs": 3,
+      "tokens_per_run": 64,
+      "status": "success"
+    }
+  },
+  "feature_flags": {
+    "fp16_baseline": true,
+    "int8_quantization_fixed": true,
+    "mixed_precision": false,
+    "sdpa_attention": true,
+    "int8_plus_sdpa": true
+  }
+}

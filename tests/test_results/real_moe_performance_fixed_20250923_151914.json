@@ -1,0 +1,66 @@
+{
+  "timestamp": "2025-09-23T15:19:14.531399",
+  "environment": {
+    "pytorch": "2.8.0+cu128",
+    "cuda": "12.8",
+    "device": "NVIDIA GeForce RTX 3090",
+    "vram_gb": 25.769279488
+  },
+  "configurations": {
+    "fp16_12layers": {
+      "avg_latency_s": 1.0328370166656289,
+      "std_latency_s": 0.03574104158890746,
+      "avg_first_token_ms": 17.011765333639534,
+      "avg_tps": 61.96524617854531,
+      "peak_memory_gb": 4.850849792,
+      "runs": 3,
+      "tokens_per_run": 64,
+      "status": "success"
+    },
+    "fp16_24layers": {
+      "avg_latency_s": 2.318539438666145,
+      "std_latency_s": 0.24470938057456917,
+      "avg_first_token_ms": 45.74460233197897,
+      "avg_tps": 27.603584796823284,
+      "peak_memory_gb": 7.26821888,
+      "runs": 3,
+      "tokens_per_run": 64,
+      "status": "success"
+    },
+    "int8_fixed": {
+      "status": "failed",
+      "error": "cannot assign 'torch.cuda.FloatTensor' as parameter 'bias' (torch.nn.Parameter or None expected)",
+      "avg_latency_s": 0,
+      "std_latency_s": 0,
+      "avg_first_token_ms": 0,
+      "avg_tps": 0,
+      "peak_memory_gb": 0
+    },
+    "sdpa_attention": {
+      "avg_latency_s": 0.9286661729990252,
+      "std_latency_s": 0.03966495374631644,
+      "avg_first_token_ms": 14.525485999911325,
+      "avg_tps": 68.91604524941297,
+      "peak_memory_gb": 4.850849792,
+      "runs": 3,
+      "tokens_per_run": 64,
+      "status": "success"
+    },
+    "int8_sdpa_combined": {
+      "status": "failed",
+      "error": "cannot assign 'torch.cuda.FloatTensor' as parameter 'bias' (torch.nn.Parameter or None expected)",
+      "avg_latency_s": 0,
+      "std_latency_s": 0,
+      "avg_first_token_ms": 0,
+      "avg_tps": 0,
+      "peak_memory_gb": 0
+    }
+  },
+  "feature_flags": {
+    "fp16_baseline": true,
+    "int8_quantization_fixed": true,
+    "mixed_precision": false,
+    "sdpa_attention": true,
+    "int8_plus_sdpa": true
+  }
+}

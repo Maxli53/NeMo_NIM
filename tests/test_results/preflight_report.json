@@ -1,0 +1,91 @@
+{
+  "timestamp": "2025-09-23T15:01:15.923746",
+  "cuda": {
+    "cuda_available": true,
+    "device_count": 1,
+    "devices": [
+      "NVIDIA GeForce RTX 3090"
+    ],
+    "pytorch_version": "2.8.0+cu128",
+    "cuda_version": "12.8",
+    "current_device": 0,
+    "cudnn_version": 91002,
+    "cudnn_enabled": true,
+    "total_memory_gb": [
+      25.769279488
+    ],
+    "capability": [
+      "8.6"
+    ]
+  },
+  "memory": {
+    "allocated_gb": 0.0,
+    "reserved_gb": 0.0,
+    "free_gb": 25.769279488,
+    "total_gb": 25.769279488,
+    "usage_percent": 0.0
+  },
+  "libraries": {
+    "bitsandbytes": {
+      "installed": true,
+      "version": "0.47.0",
+      "description": "INT8 quantization"
+    },
+    "safetensors": {
+      "installed": true,
+      "version": "0.6.2",
+      "description": "Efficient model loading"
+    },
+    "transformers": {
+      "installed": true,
+      "version": "4.56.2",
+      "description": "Model architecture"
+    },
+    "accelerate": {
+      "installed": true,
+      "version": "1.10.1",
+      "description": "Training optimization"
+    },
+    "xformers": {
+      "installed": true,
+      "version": "0.0.32.post1",
+      "description": "Memory-efficient attention"
+    },
+    "triton": {
+      "installed": true,
+      "version": "3.4.0",
+      "description": "GPU kernels"
+    },
+    "vllm": {
+      "installed": true,
+      "version": "0.10.2",
+      "description": "Production inference"
+    },
+    "flash_attn": {
+      "installed": true,
+      "version": "unknown",
+      "description": "Flash Attention v2"
+    }
+  },
+  "flash_attention": {
+    "sdpa_available": true,
+    "flash_attn_available": false,
+    "xformers_available": false,
+    "flash_backend": true
+  },
+  "env_vars": {
+    "CUDA_HOME": null,
+    "CUDA_PATH": null,
+    "LD_LIBRARY_PATH": null,
+    "TORCH_CUDA_ALLOC_CONF": null,
+    "OMP_NUM_THREADS": null
+  },
+  "feature_flags": {
+    "fp16_baseline": true,
+    "int8_quantization": true,
+    "mixed_precision": true,
+    "sdpa_attention": true
+  },
+  "model_exists": true,
+  "model_size_gb": 13.761300984
+}

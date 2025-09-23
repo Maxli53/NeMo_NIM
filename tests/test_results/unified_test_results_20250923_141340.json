@@ -1,0 +1,175 @@
+{
+  "timestamp": "2025-09-23T14:13:48.822938",
+  "total_duration_seconds": 8.455516815185547,
+  "system_info": {
+    "timestamp": "2025-09-23T14:13:40.367420",
+    "python_version": "3.12.3 (main, Aug 14 2025, 17:47:21) [GCC 13.3.0]",
+    "pytorch_version": "2.8.0+cu128",
+    "cuda_available": true,
+    "device": "cuda",
+    "cpu_percent": 1.2,
+    "memory_available_gb": 32.401027072,
+    "cuda_version": "12.8",
+    "gpu_name": "NVIDIA GeForce RTX 3090",
+    "gpu_memory_total_gb": 25.769279488,
+    "gpu_memory_allocated_gb": 0.0
+  },
+  "test_results": [
+    {
+      "name": "Quantization (INT8/FP16)",
+      "priority": "CRITICAL",
+      "status": "PASS",
+      "enabled": true,
+      "performance_gain": 1.0,
+      "memory_reduction": 0.75,
+      "latency_ms": 0.0,
+      "error_message": "",
+      "details": {
+        "accuracy": 0.971385390396932,
+        "baseline_memory_gb": 0.0884736,
+        "int8_memory_gb": 0.0221184
+      }
+    },
+    {
+      "name": "Flash Attention v2",
+      "priority": "CRITICAL",
+      "status": "PASS",
+      "enabled": true,
+      "performance_gain": 2.381944325901702,
+      "memory_reduction": 0.3,
+      "latency_ms": 0.0,
+      "error_message": "",
+      "details": {
+        "implementation": "pytorch_sdpa",
+        "std_time_ms": 26.575621999654686,
+        "flash_time_ms": 11.157112998262164,
+        "seq_len": 512,
+        "n_heads": 32
+      }
+    },
+    {
+      "name": "Mixed Precision (FP16/BF16)",
+      "priority": "CRITICAL",
+      "status": "PASS",
+      "enabled": false,
+      "performance_gain": 0.6186058259046135,
+      "memory_reduction": 0.25908625250378436,
+      "latency_ms": 0.0,
+      "error_message": "",
+      "details": {
+        "fp32_time_ms": 214.6787839992612,
+        "amp_time_ms": 347.03647300011653,
+        "fp32_memory_gb": 0.66970624,
+        "amp_memory_gb": 0.49619456
+      }
+    },
+    {
+      "name": "Dynamic Batching",
+      "priority": "CRITICAL",
+      "status": "PASS",
+      "enabled": true,
+      "performance_gain": 1.702413882679498,
+      "memory_reduction": 0.0,
+      "latency_ms": 0.0,
+      "error_message": "",
+      "details": {
+        "optimal_batch_size": 16,
+        "max_throughput": 1237587.938666285,
+        "throughput_improvement": 0.7024138826794979,
+        "batch_throughputs": {
+          "1": 726960.6711138865,
+          "2": 1139693.2223136954,
+          "4": 1222339.7875754535,
+          "8": 1172637.9590174372,
+          "16": 1237587.938666285,
+          "32": 1224410.1162687407
+        }
+      }
+    },
+    {
+      "name": "torch.compile JIT",
+      "priority": "VERY_IMPORTANT",
+      "status": "PASS",
+      "enabled": true,
+      "performance_gain": 0.05890521754919865,
+      "memory_reduction": 0.0,
+      "latency_ms": 0.0,
+      "error_message": "",
+      "details": {
+        "baseline_time_ms": 7.348888000706211,
+        "compiled_time_ms": 124.75784500020382,
+        "mode": "reduce-overhead"
+      }
+    },
+    {
+      "name": "Async I/O Prefetching",
+      "priority": "VERY_IMPORTANT",
+      "status": "PASS",
+      "enabled": true,
+      "performance_gain": 1.5226190808670041,
+      "memory_reduction": 0.0,
+      "latency_ms": 0.0,
+      "error_message": "",
+      "details": {
+        "sync_time_ms": 19.24717200017767,
+        "async_time_ms": 12.640831999306101,
+        "file_size_kb": 36.0283203125
+      }
+    },
+    {
+      "name": "Tiered Caching System",
+      "priority": "VERY_IMPORTANT",
+      "status": "PASS",
+      "enabled": true,
+      "performance_gain": 17.857142857142858,
+      "memory_reduction": 0.0,
+      "latency_ms": 0.0,
+      "error_message": "",
+      "details": {
+        "cache_hit_rate": 0.056,
+        "cache_hits": 56,
+        "cache_misses": 944,
+        "cached_time_ms": 171.94407799979672,
+        "estimated_uncached_ms": 3070.4299642820843
+      }
+    },
+    {
+      "name": "Safety Framework",
+      "priority": "CRITICAL",
+      "status": "PASS",
+      "enabled": true,
+      "performance_gain": 0.0,
+      "memory_reduction": 0.0,
+      "latency_ms": 0.0,
+      "error_message": "",
+      "details": {
+        "safety_score": 0.8571428571428571,
+        "monitoring_enabled": true,
+        "rollback_enabled": true,
+        "fallback_enabled": true,
+        "emergency_stop_works": true,
+        "progressive_rollout_works": true
+      }
+    }
+  ],
+  "summary": {
+    "total_tests": 8,
+    "passed": 8,
+    "failed": 0,
+    "skipped": 0,
+    "pass_rate": 1.0,
+    "critical_pass_rate": 1.0,
+    "enabled_optimizations": [
+      "Quantization (INT8/FP16)",
+      "Flash Attention v2",
+      "Dynamic Batching",
+      "torch.compile JIT",
+      "Async I/O Prefetching",
+      "Tiered Caching System",
+      "Safety Framework"
+    ],
+    "average_speedup": 3.591661598577839,
+    "average_memory_reduction": 0.4363620841679281,
+    "ready_for_production": true
+  }
+}
