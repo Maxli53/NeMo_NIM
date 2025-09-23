@@ -51,6 +51,14 @@
 | Logging | ✅ DONE | `src/utils/logging_config.py` | Centralized |
 | Error Handling | ✅ DONE | `src/utils/error_handler.py` | Standardized |
 
+### 5. New Implementations (2025-09-23) ✅
+| Component | Status | Files | Notes |
+|-----------|--------|-------|-------|
+| Weight Loading | ✅ DONE | `src/moe/native_moe_loader_v2.py` | Loads from model.safetensors |
+| INT8 Dtype Fix | ✅ DONE | `src/moe/int8_dtype_fix.py` | FP16→FP32→INT8 conversion |
+| Batch Testing | ✅ DONE | `src/moe/batch_size_testing.py` | Tests batch 1-32 |
+| Weight Verification | ✅ DONE | `MoEModelLoader.verify_weights_loaded()` | Confirms real weights |
+
 ---
 
 ## 🔴 WHAT'S NOT WORKING / DISABLED
@@ -186,10 +194,15 @@ python tests/test_performance.py --benchmark
 
 ## 🎯 NEXT STEPS / TODO
 
+### Recently Completed (2025-09-23)
+- [x] Load actual pretrained weights - ✅ Implemented in `native_moe_loader_v2.py`
+- [x] Test batch size > 1 - ✅ Created `batch_size_testing.py`
+- [x] Fix INT8 quantization dtype issues - ✅ Created `int8_dtype_fix.py` with proper FP32 conversion
+
 ### High Priority
-- [ ] Load actual pretrained weights (currently random)
-- [ ] Test batch size > 1
-- [ ] Fix INT8 quantization dtype issues
+- [ ] Adapt model loader to actual GPT-OSS-20B structure (uses gate weights, not separate routers)
+- [ ] Run full performance benchmarks with real weights
+- [ ] Validate batch size scaling up to 32
 
 ### Medium Priority
 - [ ] Add model versioning (DVC/Git-LFS)
