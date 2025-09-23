@@ -48,8 +48,8 @@ class RotaryEmbedding(nn.Module):
     def forward(self, x: torch.Tensor, seq_len: int) -> Tuple[torch.Tensor, torch.Tensor]:
         # x: [batch_size, num_heads, seq_len, head_dim]
         return (
-            self.cos_cached[:seq_len].to(x.dtype),
-            self.sin_cached[:seq_len].to(x.dtype),
+            self.cos_cached[:seq_len].to(x.dtype).to(x.device),
+            self.sin_cached[:seq_len].to(x.dtype).to(x.device),
         )
 
 

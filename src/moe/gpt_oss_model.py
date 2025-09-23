@@ -174,10 +174,12 @@ class GPTOSSModel(nn.Module):
                 self.embedding.weight.data = f.get_tensor("embedding.weight").cuda()
                 logger.info(f"Loaded embedding weights: {self.embedding.weight.shape}")
 
-            # Load transformer blocks
+            # Load transformer blocks with progress
+            logger.info(f"Loading {len(self.blocks)} transformer blocks...")
             for i, block in enumerate(self.blocks):
                 block.load_from_safetensors(f, i)
-                logger.debug(f"Loaded block {i}")
+                if i % 4 == 0 or i == len(self.blocks) - 1:
+                    logger.info(f"  Loaded blocks {i+1}/{len(self.blocks)} ({(i+1)*100//len(self.blocks)}%)")
 
             # Load final norm (it's called "norm.scale" not "ln_f.scale")
             if "norm.scale" in f.keys():
