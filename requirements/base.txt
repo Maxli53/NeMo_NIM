@@ -1,0 +1,45 @@
+# NeMo GPT-OSS Requirements
+# Based on official NeMo documentation
+
+# Core NeMo framework
+nemo-toolkit[all]==1.23.0
+nemo-run
+
+# Model optimization
+nvidia-modelopt>=0.31.0
+tensorrt-llm
+
+# PyTorch (install with CUDA support)
+# torch==2.1.0+cu121
+# torchvision==0.16.0+cu121
+# torchaudio==2.1.0+cu121
+
+# Transformers and tokenizers
+transformers>=4.36.0
+tokenizers>=0.15.0
+sentencepiece
+
+# Training utilities
+pytorch-lightning==2.1.0
+hydra-core>=1.3.0
+omegaconf>=2.3.0
+
+# Data processing
+datasets
+pandas
+numpy
+
+# Monitoring
+tensorboard
+wandb
+
+# API and deployment
+fastapi
+uvicorn[standard]
+pydantic
+
+# Development tools
+pytest
+black
+isort
+flake8

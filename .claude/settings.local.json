@@ -27,7 +27,20 @@
       "Bash(awk:*)",
       "WebSearch",
       "Bash(timeout:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(git tag:*)",
+      "Bash(curl:*)",
+      "Read(//c/Users/maxli/AppData/Roaming/Python/Python313/site-packages/gpt_oss/torch/**)",
+      "Bash(find:*)",
+      "Bash(docker:*)",
+      "WebFetch(domain:docs.api.nvidia.com)",
+      "WebFetch(domain:docs.nvidia.com)",
+      "Bash(chmod:*)",
+      "Bash(dos2unix:*)",
+      "Bash(./setup_wsl2.sh:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(pip --version)",
+      "Bash(git clone:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,8 +1,0 @@
-{"timestamp": "2025-09-20T21:49:15.134288", "action": "disable", "optimization": "cuda_kernels", "details": "Emergency stop"}
-{"timestamp": "2025-09-20T21:49:15.134288", "action": "disable", "optimization": "async_io", "details": "Emergency stop"}
-{"timestamp": "2025-09-20T21:49:15.134288", "action": "disable", "optimization": "tiered_cache", "details": "Emergency stop"}
-{"timestamp": "2025-09-20T21:49:15.134288", "action": "disable", "optimization": "multi_gpu", "details": "Emergency stop"}
-{"timestamp": "2025-09-20T21:51:24.705627", "action": "disable", "optimization": "cuda_kernels", "details": "Emergency stop"}
-{"timestamp": "2025-09-20T21:51:24.721414", "action": "disable", "optimization": "async_io", "details": "Emergency stop"}
-{"timestamp": "2025-09-20T21:51:24.721414", "action": "disable", "optimization": "tiered_cache", "details": "Emergency stop"}
-{"timestamp": "2025-09-20T21:51:24.721414", "action": "disable", "optimization": "multi_gpu", "details": "Emergency stop"}

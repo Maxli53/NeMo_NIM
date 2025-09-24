@@ -1,237 +1,62 @@
-# AI Agents - Multi-Agent Discussion System with MoE Backend
+# NeMo GPT-OSS-20B Project
 
-## 🎯 Overview
+Professional implementation of OpenAI's GPT-OSS-20B using NVIDIA NeMo Framework and NIM deployment.
 
-A professional multi-agent discussion system that leverages multiple AI models including GPT-OSS-20B through an optimized Mixture of Experts (MoE) implementation.
+## Overview
 
-**📊 For current project status, see [PROJECT_STATUS.md](PROJECT_STATUS.md)**
+This project provides a complete setup for:
+- Training and fine-tuning GPT-OSS-20B with NeMo
+- Deploying models using NVIDIA NIM
+- Optimized inference on consumer GPUs (RTX 3090)
 
-## 🏗️ Architecture
+Based on official NVIDIA documentation:
+- [NeMo Framework](https://docs.nvidia.com/nemo-framework/)
+- [GPT-OSS Guide](https://docs.nvidia.com/nemo-framework/user-guide/latest/llms/gpt_oss.html)
+- [NeMo GitHub](https://github.com/NVIDIA/NeMo)
 
-This project consists of two integrated systems:
-
-### 1. Multi-Agent Discussion System (Main Application)
-- **Entry Point**: `main.py`
-- **Purpose**: Orchestrate discussions between multiple AI agents
-- **Features**:
-  - Multiple agent types (Expert, Consensus)
-  - RAG (Retrieval Augmented Generation)
-  - PDF document processing
-  - Vector database for knowledge storage
-  - Streamlit UI and FastAPI endpoints
-  - Support for multiple model providers
-
-### 2. MoE Backend (GPT-OSS-20B Support)
-- **Location**: `src/moe/`
-- **Purpose**: High-performance inference for GPT-OSS-20B model
-- **Features**:
-  - Top-k expert selection (4 out of 32 experts)
-  - FP16 precision with SDPA/Flash Attention
-  - Async expert loading and tiered caching
-  - Safety framework with feature flags
-  - **Performance**: 29.1 tokens/sec with 7.3GB VRAM
-
-## 📁 Project Structure
+## Project Structure
 
 ```
-AI_agents/
-├── main.py                 # Entry point for agent system
-├── src/
-│   ├── agents/            # Multi-agent implementations
-│   │   ├── expert.py      # Expert agent
-│   │   ├── consensus.py  # Consensus agent
-│   │   └── integrated_multi_agent_gptoss.py
-│   ├── core/              # Core system components
-│   │   ├── moderator.py  # Discussion moderator
-│   │   ├── session.py    # Session management
-│   │   ├── vector_db.py  # Vector database
-│   │   └── model_manager.py
-│   ├── moe/               # MoE implementation for GPT-OSS
-│   │   ├── native_moe_loader_v2.py  # Main MoE loader
-│   │   ├── expert_cache.py          # LRU caching
-│   │   ├── async_expert_loader.py   # Async loading
-│   │   ├── tiered_cache.py          # Tiered caching
-│   │   └── optimization_safety/     # Safety framework
-│   ├── api/               # API endpoints
-│   │   └── server.py      # FastAPI server
-│   ├── ui/                # User interfaces
-│   │   └── streamlit_app.py
-│   └── utils/             # Utilities
-├── tests/                 # Test suites
-├── scripts/               # Utility scripts
-├── configs/               # Configuration files
-└── docs/                  # Documentation
+nemo-gpt-oss/
+├── workspace/          # Working directory for experiments
+│   ├── experiments/    # NeMo-Run experiment configs
+│   ├── checkpoints/    # Model checkpoints
+│   ├── data/          # Training/evaluation data
+│   └── outputs/       # Logs and results
+├── scripts/           # Python scripts for training/inference
+├── configs/           # Model and training configurations
+├── nim/              # NIM deployment files
+├── nemo/             # Cloned NeMo repository (reference)
+└── requirements/     # Python dependencies
 ```
 
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.10-3.12
-- CUDA 12.8+ (for GPU acceleration)
-- 24GB+ VRAM (for full GPT-OSS-20B)
-- WSL2 (Windows) or Linux
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/AI_agents.git
-cd AI_agents
-```
-
-2. Create virtual environment:
-```bash
-python -m venv venv_wsl
-source venv_wsl/bin/activate  # Linux/WSL
-```
-
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-4. Set environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your settings
-```
-
-### Running the System
-
-#### Option 1: Multi-Agent Discussion (Main)
-```bash
-python main.py --model gpt-oss --topic "Your discussion topic"
-```
-
-#### Option 2: Streamlit UI
-```bash
-streamlit run src/ui/streamlit_app.py
-```
-
-#### Option 3: API Server
-```bash
-python -m src.api.server
-# API available at http://localhost:8000
-```
-
-#### Option 4: Direct MoE Inference (Production)
-```bash
-# Load complete GPT-OSS-20B model (13GB weights)
-python -c "from src.moe.native_moe_loader_v2 import MoEModelLoader; loader = MoEModelLoader('gpt-oss-20b/original'); model = loader.create_model_fp16(top_k=4)"
-```
-
-#### Option 5: Verification Tests
-```bash
-# Run complete verification suite (21 tests)
-python verify_implementation.py
-
-# Quick verification (skip full model)
-python verify_implementation.py --quick
-```
-
-## 🎯 Supported Models
-
-The system supports multiple model providers:
-
-| Provider | Model | Backend | Status |
-|----------|-------|---------|--------|
-| GPT-OSS | gpt-oss-20b | MoE Implementation | ✅ Production Ready |
-| Anthropic | Claude 3 | API | ✅ Ready |
-| OpenAI | GPT-4 | API | ✅ Ready |
-| Local | Various | Transformers | ✅ Ready |
-
-## 📊 Performance
-
-### GPT-OSS-20B Implementation Status (v1.0.0)
-- **Status**: COMPLETE and PRODUCTION-READY ✅
-- **Verification**: 21/21 tests passing ✅
-- **Real Weights**: 13GB pretrained model loaded ✅
-- **Model Loading**: ~12 seconds (no hanging) ✅
-- **Generation**: Memory-safe, no segfaults ✅
-
-### Performance Metrics (Validated 2025-09-23)
-- **Throughput**: 29.1 tokens/second (FP16), 11.1 TPS (INT8)
-- **Memory**: 7.3GB VRAM (FP16), 4.1GB (INT8 - 44% reduction)
-- **First Token Latency**: 30ms (FP16), 76ms (INT8)
-- **Configuration**: FP16 + SDPA + Top-k=4 + Real 13GB Weights
-- **Output Quality**: Fixed magnitude (std=2.88, not 146)
-- **MXFP4 Dequantization**: Working with bias=127
-- **Batch Scaling**: Tested 1-32, optimal batch=8 for throughput
-
-### Complete Implementation Status
-| Component | Status | Verification | Notes |
-|-----------|--------|-------------|-------|
-| MXFP4 Dequantization | ✅ DONE | Working correctly | Fixed bias=127, proper scales |
-| Weight Loading | ✅ DONE | 13GB verified | Real pretrained weights |
-| Model Architecture | ✅ DONE | All tests pass | RMSNorm, GQA, RoPE, SwiGLU |
-| Memory Management | ✅ DONE | No segfaults | Sliding window generation |
-| Performance | ✅ DONE | 29.1 TPS | Meets all targets |
-| Integration | ✅ DONE | Working | With multi-agent system |
-
-## 🛡️ Safety Features
-
-- **Feature Flags**: Centralized control for all optimizations
-- **Health Monitoring**: Real-time performance tracking
-- **Automatic Rollback**: Reverts on performance degradation
-- **Error Handling**: Comprehensive error management
-- **Logging**: Structured logging throughout
-- **Verification Suite**: 21 automated tests for implementation correctness
-- **Memory Safety**: Prevents segfaults and GPU memory issues
-- **Production Ready**: Complete implementation with real weights
-
-## 📖 Documentation
-
-- [Technical Architecture](docs/TECHNICAL.md) - System design details
-- [Performance Guide](docs/PERFORMANCE.md) - Optimization benchmarks
-- [Operations Manual](docs/OPERATIONS.md) - Deployment guide
-- [Development Guide](docs/DEVELOPMENT.md) - Contributing guidelines
-- [Best Practices](docs/BEST_PRACTICES.md) - Code standards
-
-## 🧪 Testing
+## Quick Start
 
 ```bash
-# Run all tests
-pytest tests/ -v
+# 1. Setup environment
+./setup.sh
 
-# Unit tests only
-pytest tests/test_unit.py -v
+# 2. Import model to NeMo format
+docker-compose run nemo-dev python /scripts/import_gpt_oss.py \
+  --source /workspace/checkpoints/base/gpt-oss-20b
 
-# Performance benchmarks
-pytest tests/test_performance.py -v
+# 3. Fine-tune with LoRA
+docker-compose run nemo-dev python /scripts/train_gpt_oss.py \
+  --task finetune --peft-scheme lora
 
-# Functional tests
-pytest tests/test_functional.py -v
-
-# Complete verification suite (21 tests)
-python verify_implementation.py
-
-# Expected output: "✅ ALL VERIFICATIONS PASSED (21/21)"
-# Tests: Weight loading, MXFP4, routing, architecture, generation
+# 4. Run inference
+docker-compose run nemo-dev python /scripts/generate.py \
+  --model-path /workspace/checkpoints/converted/gpt_oss_20b.nemo \
+  --prompt "Hello, world!"
 ```
 
-## 🤝 Contributing
+## Documentation
 
-1. Follow guidelines in [CLAUDE.md](CLAUDE.md)
-2. Ensure all tests pass
-3. Update documentation
-4. Submit PR with clear description
+See full documentation in the README for:
+- Detailed setup instructions
+- Configuration options
+- Performance optimization
+- API usage
+- Troubleshooting
 
-## 📄 License
-
-MIT License - see LICENSE file for details
-
-## 🙏 Acknowledgments
-
-- OpenAI for GPT-OSS-20B model
-- PyTorch team for framework
-- NVIDIA for CUDA and Flash Attention
-
-## 📞 Support
-
-- Issues: [GitHub Issues](https://github.com/yourusername/AI_agents/issues)
-- Documentation: [docs/](docs/)
-- Performance Issues: Check [PERFORMANCE.md](docs/PERFORMANCE.md)
-
----
-
-**Note**: This is an integrated system combining multi-agent orchestration with high-performance MoE inference for GPT-OSS-20B. Both components work together to provide a complete AI discussion platform.
+Based on official NVIDIA NeMo and NIM documentation.
