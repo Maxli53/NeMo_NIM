@@ -1,62 +1,45 @@
-# NeMo GPT-OSS-20B Project
+# NeMo GPT-OSS-20B
 
-Professional implementation of OpenAI's GPT-OSS-20B using NVIDIA NeMo Framework and NIM deployment.
+Official NeMo implementation following NVIDIA documentation.
 
-## Overview
-
-This project provides a complete setup for:
-- Training and fine-tuning GPT-OSS-20B with NeMo
-- Deploying models using NVIDIA NIM
-- Optimized inference on consumer GPUs (RTX 3090)
-
-Based on official NVIDIA documentation:
-- [NeMo Framework](https://docs.nvidia.com/nemo-framework/)
-- [GPT-OSS Guide](https://docs.nvidia.com/nemo-framework/user-guide/latest/llms/gpt_oss.html)
-- [NeMo GitHub](https://github.com/NVIDIA/NeMo)
-
-## Project Structure
+## Structure
 
 ```
-nemo-gpt-oss/
-├── workspace/          # Working directory for experiments
-│   ├── experiments/    # NeMo-Run experiment configs
-│   ├── checkpoints/    # Model checkpoints
-│   ├── data/          # Training/evaluation data
-│   └── outputs/       # Logs and results
-├── scripts/           # Python scripts for training/inference
-├── configs/           # Model and training configurations
-├── nim/              # NIM deployment files
-├── nemo/             # Cloned NeMo repository (reference)
-└── requirements/     # Python dependencies
+.
+├── nemo/                    # Official NVIDIA NeMo repository (cloned from GitHub)
+└── workspace/              # Working directory
+    ├── checkpoints/        # Model checkpoints
+    └── gpt_oss_training.py # Training script (from official docs)
 ```
 
-## Quick Start
+## Setup
 
+1. **Install NVIDIA Container Toolkit** (in WSL2):
 ```bash
-# 1. Setup environment
-./setup.sh
-
-# 2. Import model to NeMo format
-docker-compose run nemo-dev python /scripts/import_gpt_oss.py \
-  --source /workspace/checkpoints/base/gpt-oss-20b
-
-# 3. Fine-tune with LoRA
-docker-compose run nemo-dev python /scripts/train_gpt_oss.py \
-  --task finetune --peft-scheme lora
-
-# 4. Run inference
-docker-compose run nemo-dev python /scripts/generate.py \
-  --model-path /workspace/checkpoints/converted/gpt_oss_20b.nemo \
-  --prompt "Hello, world!"
+sudo apt-get update
+sudo apt-get install -y nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
 ```
 
-## Documentation
+2. **Pull official container**:
+```bash
+docker pull nvcr.io/nvidia/nemo:25.07.gpt_oss
+```
 
-See full documentation in the README for:
-- Detailed setup instructions
-- Configuration options
-- Performance optimization
-- API usage
-- Troubleshooting
+3. **Run container**:
+```bash
+docker run --gpus all -it \
+  -v $(pwd)/workspace:/workspace \
+  nvcr.io/nvidia/nemo:25.07.gpt_oss
+```
 
-Based on official NVIDIA NeMo and NIM documentation.
+## Usage
+
+Inside the container, follow the official documentation:
+- https://docs.nvidia.com/nemo-framework/user-guide/latest/llms/gpt_oss.html
+
+## References
+
+- NeMo Framework: https://github.com/NVIDIA/NeMo
+- Documentation: https://docs.nvidia.com/nemo-framework/

@@ -79,3 +79,4 @@ docs/.doctrees/
 
 # Docker
 docker-compose.override.yml
+nemo/

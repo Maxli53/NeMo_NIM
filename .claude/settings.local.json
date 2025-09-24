@@ -40,7 +40,9 @@
       "Bash(./setup_wsl2.sh:*)",
       "Bash(powershell.exe:*)",
       "Bash(pip --version)",
-      "Bash(git clone:*)"
+      "Bash(git clone:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(git remote add:*)"
     ],
     "deny": [],
     "ask": []
