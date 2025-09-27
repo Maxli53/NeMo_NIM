@@ -14,7 +14,7 @@ import torch
 # SECTION 1: CRITICAL CONFIGS (START HERE - Most commonly adjusted)
 # ============================================================================
 
-MODEL_PATH = "/root/.cache/nemo/models/gpt-oss-20b"
+MODEL_PATH = "/workspace/checkpoints/gpt-oss-20b"
 
 # MoE Top-K: Number of experts to activate per token (MOST IMPORTANT setting)
 #   - 1 = Fastest, lowest quality, ~8GB VRAM
