@@ -182,9 +182,8 @@ docker exec nemo-gpt-oss nvidia-smi
 
 ## Documentation
 
-- [UBUNTU_SETUP_GUIDE.md](UBUNTU_SETUP_GUIDE.md) - Complete Ubuntu setup
-- [SETUP_STATUS.md](SETUP_STATUS.md) - Legacy Windows/WSL setup
-- [CUDA_COMPATIBILITY_NOTES.md](CUDA_COMPATIBILITY_NOTES.md) - CUDA compatibility
+- [UBUNTU_SETUP_GUIDE.md](UBUNTU_SETUP_GUIDE.md) - Step-by-step installation guide
+- [SETUP_STATUS.md](SETUP_STATUS.md) - Complete system status & CUDA technical details
 
 ## References
 
