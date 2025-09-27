@@ -1,5 +1,12 @@
 # WSL2 + Project Migration to D: Drive - Final Steps
 
+> **⚠️ ARCHIVED DOCUMENT**
+> This document describes the Windows WSL2 migration process.
+> **Migration completed successfully on September 27, 2025.**
+> For current Ubuntu setup, see [UBUNTU_SETUP_GUIDE.md](UBUNTU_SETUP_GUIDE.md)
+
+---
+
 ## Current Status
 ✅ **Phase 1-2 Complete**: Directories created, WSL shutdown
 ⏳ **Phase 3 In Progress**: WSL export running (15-30 min)

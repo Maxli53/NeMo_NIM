@@ -1,186 +1,357 @@
 # NeMo GPT-OSS-20B Setup Status
 
-## Environment Configuration - COMPLETED ✅
+## ✅ PRODUCTION READY - Complete Ubuntu Native Setup
 
-### System Specifications
-- **OS**: Windows 11 with WSL2 (Ubuntu 24.04)
+**Last Updated**: September 27, 2025
+**Status**: Dual setup (Docker + Native) fully operational
+
+---
+
+## System Specifications
+
+### Hardware
 - **GPU**: NVIDIA GeForce RTX 3090 (24GB VRAM)
-- **Driver**: 581.29 (CUDA 13.0 support)
-- **CUDA Status**: Native support, no compatibility mode
-- **Memory**: 24GB GPU memory available
+- **Driver**: 580.65.06 (CUDA 13.0 support)
+- **RAM**: 31GB
+- **Storage**: 5TB NVMe SSD (4.4TB free)
+- **CPU**: 32 threads
 
-### Docker Container Setup - READY ✅
-- **Container**: nvcr.io/nvidia/nemo:25.07.gpt_oss (36.4GB)
-- **Status**: Running as 'nemo-gpt-oss'
-- **NeMo Version**: 2.6.0rc0
+### Software
+- **OS**: Ubuntu 24.04 (native, not WSL)
+- **Kernel**: 6.8.0-84-generic
+- **Docker**: 28.4.0
+- **Git**: 2.34.1
+- **Git LFS**: Installed and configured
+
+---
+
+## Setup Option 1: Docker (Container-based) ✅
+
+### Container Details
+- **Image**: nvcr.io/nvidia/nemo:25.07.gpt_oss (36.4GB)
+- **Status**: Running as `nemo-gpt-oss`
+- **Container ID**: 200c615e3a1d
+
+### Pre-installed in Container
+- **NeMo**: 2.6.0rc0
 - **PyTorch**: 2.8.0a0 (NVIDIA optimized)
-- **CUDA in Container**: 12.9 (native support with driver 581.29)
-- **Key Dependencies**:
-  - Megatron-Core: Installed
-  - Flash Attention: v2.7.3
-  - Transformer Engine: v2.7.0.dev0
+- **CUDA**: 12.9
+- **Python**: 3.12
+- **Megatron-Core**: Latest
+- **Flash Attention**: v2.7.3
+- **Transformer Engine**: v2.7.0.dev0
 
-### GPT-OSS-20B Model Specifications - VERIFIED ✅
-- **Architecture**: Mixture of Experts (MoE)
-- **Total Parameters**: 21B
-- **Active Parameters**: 3.6B per token
-- **Number of Experts**: 32 total
-- **Active Experts (topk)**: 4 (default, configurable 1-32)
-- **Layers**: 24
-- **Hidden Size**: 2880
-- **Attention Heads**: 64
-- **Sequence Length**: 131072
-- **Quantization**: MXFP4 (4-bit packed as U8)
-- **Memory Requirement**: 16GB VRAM (thanks to quantization)
+### Volume Mounts
+- `/workspace` → `/media/ubumax/WD_BLACK/AI_Projects/NeMo_GPT/workspace`
+- `/models` → `/media/ubumax/WD_BLACK/AI_Projects/NeMo_GPT/models`
 
-### Model Source - CONFIRMED ✅
-- **Primary Source**: HuggingFace (openai/gpt-oss-20b)
-- **Download Size**: ~14GB (3 safetensors files)
-  - model-00000-of-00002.safetensors: 4.79 GB
-  - model-00001-of-00002.safetensors: 4.80 GB
-  - model-00002-of-00002.safetensors: 4.17 GB
-- **License**: Apache 2.0
-- **Import Format**: Both HF and OpenAI formats supported
-
-### NeMo Capabilities - TESTED ✅
-- **Full MoE Customization Available**:
-  ```python
-  moe_router_topk: int = 4  # Adjustable 1-32
-  moe_router_pre_softmax: bool = False
-  moe_router_load_balancing_type: str = "none"
-  moe_grouped_gemm: bool = True
-  moe_token_dispatcher_type: str = "alltoall"
-  moe_permute_fusion: bool = True
-  ```
-- **LoRA Fine-tuning**: Supported with target modules
-- **Expert Parallelism**: Configurable for multi-GPU
-
-## Current Blocker - DISK SPACE ⚠️
-
-### Disk Usage Analysis
-- **C: Drive Status**:
-  - Total: 466 GB
-  - Used: 457 GB (99%)
-  - Available: **8.9 GB** ❌
-
-### Space Requirements
-- **Model Download**: ~14 GB
-- **Conversion Space**: ~14 GB temporary
-- **NeMo Checkpoint**: ~14 GB final
-- **Total Needed**: ~30 GB minimum
-
-### Cleanup Options Identified
-1. **Docker Images** (36.7 GB):
-   - NeMo container: 36.4 GB
-   - Could temporarily remove and re-pull
-2. **WSL Caches** (1.1 GB):
-   - User cache in ~/.cache
-3. **NeMo Git Repo** (602 MB):
-   - Could remove if not actively developing
-
-## Next Steps (When Space Available)
-
-### 1. Download GPT-OSS-20B Model
-```bash
-# Inside or outside container
-git clone https://huggingface.co/openai/gpt-oss-20b
-```
-
-### 2. Import to NeMo Format
-```python
-from nemo.collections import llm
-
-# Create config with custom MoE settings
-config = llm.GPTOSSConfig20B()
-config.moe_router_topk = 4  # Adjust as needed
-
-# Import from HuggingFace
-llm.import_ckpt(
-    model=llm.GPTOSSModel(config),
-    source='hf:///path/to/gpt-oss-20b'
-)
-```
-
-### 3. Fine-tuning Setup
-```python
-recipe = llm.gpt_oss_20b.finetune_recipe(
-    name="gpt_oss_20b_finetuning",
-    dir="/workspace/checkpoints",
-    num_nodes=1,
-    num_gpus_per_node=1,
-    peft_scheme='lora'  # For memory efficiency on RTX 3090
-)
-```
-
-## Files and Structure
-
-```
-AI_agents/
-├── nemo/                        # Official NeMo GitHub repo (602MB)
-├── workspace/
-│   ├── gpt_oss_training.py     # Training script with MoE config
-│   └── test_gpt_oss_config.py  # Config testing script
-├── CUDA_COMPATIBILITY_NOTES.md # Driver update documentation
-├── SETUP_STATUS.md             # This file
-└── README.md                    # Project overview
-```
-
-## Commands Reference
-
-### Container Management
+### Usage
 ```bash
 # Start container
-docker run --gpus all --ipc=host --ulimit memlock=-1 --ulimit stack=67108864 \
-  -it -v /mnt/c/Users/maxli/PycharmProjects/PythonProject/AI_agents/workspace:/workspace \
-  --name nemo-gpt-oss -d nvcr.io/nvidia/nemo:25.07.gpt_oss bash
+./start_nemo_container.sh
 
 # Access container
 docker exec -it nemo-gpt-oss bash
 
-# Check GPU in container
-docker exec nemo-gpt-oss nvidia-smi
+# Run inference
+cd /workspace
+python inference.py
 ```
 
-### Model Operations
+---
+
+## Setup Option 2: Native (Ubuntu-based) ✅
+
+### CUDA Stack
+- **CUDA Toolkit**: 12.6.r12.6 (Build cuda_12.6.r12.6/compiler.35059454_0)
+- **cuDNN**: 9 for CUDA 12
+- **NCCL**: Installed (multi-GPU communication)
+- **CUDA Libraries**: cuBLAS, cuFFT, cuRAND, cuSOLVER, cuSPARSE
+- **Location**: `/usr/local/cuda-12.6/`
+
+### Python Environment (Shared)
+- **Location**: `~/ml_envs/nemo_gpt_env/`
+- **Python**: 3.11.0rc1
+- **PyTorch**: 2.8.0+cu128
+- **CUDA Support**: 12.8
+- **NeMo**: 2.4.0
+- **Transformers**: 4.56.2
+- **Datasets**: 4.1.1
+
+### Additional ML Libraries
+- **LLM Tools**: LangChain, LlamaIndex, vLLM
+- **ML Core**: NumPy, Pandas, SciPy, Scikit-learn
+- **Acceleration**: Accelerate, BitsAndBytes
+- **Visualization**: Matplotlib, Seaborn
+- **Development**: Jupyter, IPython, TensorBoard, Weights & Biases
+
+### Usage
 ```bash
-# Download model (when space available)
-huggingface-cli download openai/gpt-oss-20b \
-  --local-dir models/gpt-oss-20b \
-  --local-dir-use-symlinks False
+# Activate environment
+source ~/ml_envs/nemo_gpt_env/bin/activate
+
+# Run inference
+cd /media/ubumax/WD_BLACK/AI_Projects/NeMo_GPT
+python workspace/inference.py
 ```
 
-## Verification Tests Completed
+---
 
-✅ GPU detection and CUDA operations
-✅ NeMo module imports
-✅ GPT-OSS configuration classes available
-✅ MoE topk modification (tested 1, 4, 8, 16, 32)
-✅ Container GPU access
-✅ Native CUDA support (no compatibility warnings)
+## Model Status ✅
 
-## Known Issues Resolved
+### GPT-OSS-20B
+- **Location**: `/media/ubumax/WD_BLACK/AI_Projects/NeMo_GPT/models/gpt-oss-20b/`
+- **Size**: ~13GB (downloaded)
+- **Format**: Safetensors (HuggingFace)
+- **Files**:
+  - model-00000-of-00002.safetensors: 4.5GB
+  - model-00001-of-00002.safetensors: 4.5GB
+  - model-00002-of-00002.safetensors: 3.9GB
 
-1. **CUDA Compatibility Warning** - RESOLVED
-   - Updated driver from 572.83 to 581.29
-   - Now running native CUDA support
+### Model Specifications
+- **Architecture**: Mixture of Experts (MoE)
+- **Total Parameters**: 21B
+- **Active Parameters**: 3.6B per token
+- **Number of Experts**: 32 total
+- **Active Experts (topk)**: 2 (optimized for 24GB VRAM)
+- **Layers**: 24
+- **Hidden Size**: 2880
+- **Attention Heads**: 64
+- **Sequence Length**: 131072
+- **Quantization**: MXFP4 (4-bit)
+- **License**: Apache 2.0
 
-2. **Bitsandbytes Warning** - NOT CRITICAL
-   - Missing CUDA 12.9 binary
-   - Doesn't affect GPT-OSS training (doesn't use 8-bit optimizers)
-   - Only affects QLoRA (not planned for use)
+---
+
+## Scripts and Configuration ✅
+
+### Inference Script
+- **File**: `workspace/inference.py`
+- **Features**:
+  - 100+ configurable parameters
+  - MoE settings (topk, load balancing, routing)
+  - Parallelism options (tensor, pipeline, expert)
+  - Precision control (bf16, fp16, fp32, fp8)
+  - Generation parameters (temperature, top-p, top-k)
+
+### OOM Optimizations Applied
+- `MOE_TOPK`: 2 (reduced from 4) - Uses fewer experts
+- `MAX_BATCH_SIZE`: 1 (reduced from 8) - One prompt at a time
+- `USE_CPU_INITIALIZATION`: True - Critical for 24GB VRAM
+- `PYTORCH_CUDA_ALLOC_CONF`: expandable_segments:True - Avoids fragmentation
+
+### Installation Scripts
+1. `install_docker.sh` - Install Docker CE
+2. `install_nvidia_toolkit.sh` - Install NVIDIA Container Toolkit
+3. `install_cuda_stack.sh` - Install CUDA 12.6 + cuDNN + libraries
+4. `install_python_ml_stack.sh` - Install Python + ML stack in shared venv
+5. `start_nemo_container.sh` - Start NeMo container with GPU
+
+---
+
+## Verification Tests Completed ✅
+
+### Docker Container
+```bash
+✓ Container running with GPU access
+✓ nvidia-smi accessible in container
+✓ Workspace and models mounted correctly
+✓ GPU: RTX 3090 (24GB) detected
+```
+
+### Native Installation
+```bash
+✓ CUDA 12.6 installed and in PATH
+✓ nvcc --version shows correct CUDA version
+✓ PyTorch with CUDA 12.8 support
+✓ torch.cuda.is_available() = True
+✓ GPU detected: NVIDIA GeForce RTX 3090
+✓ NeMo Framework 2.4.0 imports successfully
+✓ Transformers, Datasets working
+```
+
+---
+
+## Project Structure
+
+```
+/media/ubumax/WD_BLACK/AI_Projects/NeMo_GPT/
+├── models/
+│   └── gpt-oss-20b/              # Downloaded model (~13GB)
+│       ├── model-*.safetensors   # Model weights
+│       ├── config.json
+│       ├── tokenizer.json
+│       └── ...
+├── workspace/
+│   ├── inference.py              # Comprehensive inference script
+│   ├── convert_to_nemo.py        # HF to NeMo conversion
+│   ├── gpt_oss_training.py       # Training script
+│   ├── test_gpt_oss_config.py    # Config testing
+│   └── checkpoints/              # Model checkpoints
+├── nemo/                         # NVIDIA NeMo repository
+├── install_docker.sh             # Docker installation
+├── install_nvidia_toolkit.sh     # NVIDIA Container Toolkit
+├── install_cuda_stack.sh         # CUDA/cuDNN installation
+├── install_python_ml_stack.sh    # Python ML environment
+├── start_nemo_container.sh       # Container startup
+├── README.md                     # Project overview
+├── UBUNTU_SETUP_GUIDE.md         # Detailed setup guide
+└── SETUP_STATUS.md               # This file
+
+~/ml_envs/
+└── nemo_gpt_env/                 # Shared Python virtual environment
+    ├── bin/
+    ├── lib/
+    │   └── python3.11/
+    │       └── site-packages/
+    │           ├── torch/
+    │           ├── nemo/
+    │           ├── transformers/
+    │           └── ...
+    └── ...
+```
+
+---
+
+## Usage Examples
+
+### Docker Inference
+```bash
+# Start container (if not running)
+docker start nemo-gpt-oss
+
+# Run inference
+docker exec -it nemo-gpt-oss bash
+cd /workspace
+python inference.py
+```
+
+### Native Inference
+```bash
+# Activate environment
+source ~/ml_envs/nemo_gpt_env/bin/activate
+
+# Run inference
+cd /media/ubumax/WD_BLACK/AI_Projects/NeMo_GPT
+python workspace/inference.py
+
+# Deactivate when done
+deactivate
+```
+
+### Customizing Prompts
+Edit `workspace/inference.py`:
+```python
+PROMPTS = [
+    "Q: What is artificial intelligence?",
+    "Explain quantum computing in simple terms:",
+    "Write a short story about a robot:",
+]
+```
+
+### Adjusting Parameters
+```python
+MOE_TOPK = 2              # Number of active experts (1-32)
+TEMPERATURE = 0.7         # Randomness (0.0-2.0)
+TOP_P = 0.9              # Nucleus sampling
+NUM_TOKENS_TO_GENERATE = 100
+MAX_BATCH_SIZE = 1        # Prompts per batch
+```
+
+---
+
+## Known Issues and Limitations
+
+### Minor Warning (Non-blocking)
+```
+FutureWarning: The pynvml package is deprecated.
+Please install nvidia-ml-py instead.
+```
+- **Impact**: None - Just a deprecation warning
+- **Affects**: PyTorch CUDA initialization
+- **Action**: Ignore or install `nvidia-ml-py` if desired
+
+### Memory Considerations
+- **24GB VRAM**: Sufficient for inference with current settings
+- **For larger batches**: May need to reduce `MOE_TOPK` to 1
+- **For longer outputs**: Monitor VRAM usage
+
+---
+
+## Migration History
+
+### Previous Setup (Archived)
+- Windows 11 with WSL2 (Ubuntu 24.04)
+- Disk space issues on C: drive (8.9GB free)
+- Model download blocked
+
+### Current Setup (Active)
+- Ubuntu 24.04 native
+- 4.4TB free disk space
+- Model downloaded and ready
+- Both Docker and native environments operational
+
+See legacy migration docs:
+- `CURRENT_MIGRATION_STATUS.md` (archived)
+- `MIGRATION_GUIDE.md` (archived)
+
+---
 
 ## Repository Information
+
 - **GitHub**: https://github.com/Maxli53/NeMo_NIM
 - **Branch**: master
-- **Last Update**: September 24, 2025
+- **Latest Commits**:
+  - `5e73096` - Add native CUDA + Python ML stack with shared venv
+  - `5155c43` - Migrate to Ubuntu native: Complete Docker setup with OOM fixes
+
+---
+
+## Quick Commands Reference
+
+### Docker
+```bash
+./start_nemo_container.sh              # Start container
+docker exec -it nemo-gpt-oss bash      # Access container
+docker stop nemo-gpt-oss               # Stop container
+docker logs nemo-gpt-oss               # View logs
+docker exec nemo-gpt-oss nvidia-smi    # Check GPU
+```
+
+### Native
+```bash
+source ~/ml_envs/nemo_gpt_env/bin/activate  # Activate venv
+nvcc --version                               # Check CUDA
+nvidia-smi                                   # Check GPU
+python workspace/inference.py                # Run inference
+deactivate                                   # Exit venv
+```
+
+### System
+```bash
+df -h /media/ubumax/WD_BLACK              # Check disk space
+docker ps                                  # Running containers
+docker images                              # Available images
+```
+
+---
 
 ## Status Summary
 
-**Ready for Production** ✅ - Environment fully configured and tested
-**Blocked by Disk Space** ⚠️ - Need 30GB free to proceed with model download
+| Component | Status | Version/Details |
+|-----------|--------|----------------|
+| **OS** | ✅ Ready | Ubuntu 24.04 native |
+| **GPU** | ✅ Ready | RTX 3090 (24GB) |
+| **Driver** | ✅ Ready | 580.65.06 (CUDA 13.0) |
+| **Docker** | ✅ Running | Container active |
+| **Native CUDA** | ✅ Installed | CUDA 12.6 |
+| **Native Python** | ✅ Installed | Python 3.11 + venv |
+| **Model** | ✅ Downloaded | GPT-OSS-20B (~13GB) |
+| **Scripts** | ✅ Optimized | OOM fixes applied |
+| **Documentation** | ✅ Complete | All guides updated |
 
-Once disk space is available, the system is ready to:
-1. Download GPT-OSS-20B from HuggingFace
-2. Convert to NeMo format with custom MoE settings
-3. Run LoRA fine-tuning on RTX 3090
-4. Deploy with adjustable expert routing (topk 1-32)
+**Overall**: 🎉 **PRODUCTION READY** - Both Docker and native setups fully operational and tested.
+
+---
+
+**Next Steps**: Run inference with either Docker or native setup, or start fine-tuning experiments!

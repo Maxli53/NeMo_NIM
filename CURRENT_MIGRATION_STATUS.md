@@ -1,5 +1,12 @@
 # Migration Status - September 25, 2025
 
+> **⚠️ ARCHIVED DOCUMENT**
+> This document describes the migration from Windows WSL2 to native Ubuntu.
+> **Migration completed successfully on September 27, 2025.**
+> For current setup status, see [SETUP_STATUS.md](SETUP_STATUS.md)
+
+---
+
 ## What's Happening Now
 
 ### ⏳ **WSL2 Export Running in Background**
