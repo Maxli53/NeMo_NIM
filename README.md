@@ -4,10 +4,13 @@ Official NeMo implementation for OpenAI's GPT-OSS-20B model with Mixture of Expe
 
 ## Project Status
 
-✅ **PRODUCTION READY** - Ubuntu native setup complete
-✅ **Model Downloaded** - GPT-OSS-20B ready (~13GB)
+✅ **Model Downloaded** - GPT-OSS-20B ready (~13GB HF format)
+✅ **Conversion Complete** - HF → NeMo checkpoint created
 ✅ **Docker Container** - Running with GPU access
-✅ **Scripts Optimized** - OOM fixes applied for 24GB VRAM
+⚠️ **Inference Limited** - Model loads (23.07 GB) but needs token reduction for generation
+
+**Current Blocker**: CUDA OOM during inference (24GB VRAM insufficient for 100-token generation)
+**Solution**: Reduce `NUM_TOKENS_TO_GENERATE` from 100 to 20 in `inference.py`
 
 ## Model Specifications
 
@@ -53,12 +56,14 @@ python workspace/inference.py
 ```
 /media/ubumax/WD_BLACK/AI_Projects/NeMo_GPT/
 ├── models/
-│   └── gpt-oss-20b/             # Downloaded model (~13GB)
+│   └── gpt-oss-20b/             # Downloaded HF model (~13GB, MXFP4)
 ├── workspace/
+│   ├── checkpoints/
+│   │   └── gpt-oss-20b/         # ✅ Converted NeMo checkpoint (BF16)
 │   ├── inference.py             # Comprehensive inference script
-│   ├── convert_to_nemo.py       # HF to NeMo conversion
+│   ├── convert_hf_to_nemo.py    # ✅ HF to NeMo conversion (working)
 │   ├── gpt_oss_training.py      # Training script
-│   └── checkpoints/             # Model checkpoints
+│   └── convert_with_swap.log    # Conversion logs
 ├── nemo/                        # NVIDIA NeMo repository
 ├── install_docker.sh            # Docker installation
 ├── install_nvidia_toolkit.sh    # NVIDIA Container Toolkit
@@ -66,6 +71,8 @@ python workspace/inference.py
 ├── install_python_ml_stack.sh   # Python ML environment (shared)
 ├── start_nemo_container.sh      # Container startup
 ├── UBUNTU_SETUP_GUIDE.md        # Detailed Ubuntu setup guide
+├── PREFLIGHT_CHECK.md           # System readiness report
+├── PROJECT_STATUS.md            # Detailed current status & solutions
 └── README.md                    # This file
 
 ~/ml_envs/
@@ -81,6 +88,14 @@ python workspace/inference.py
 - **Container**: nvcr.io/nvidia/nemo:25.07.gpt_oss (36.4GB)
 
 ## Key Features
+
+### Conversion Pipeline ✅
+- **Script**: `workspace/convert_hf_to_nemo.py`
+- **Input**: HuggingFace MXFP4 checkpoint (13 GB)
+- **Output**: NeMo distributed checkpoint (BF16, ~23 GB)
+- **Requirements**: 100 GB swap (62 GB RAM insufficient)
+- **Duration**: ~4 minutes
+- **Status**: Working successfully
 
 ### Inference Script (workspace/inference.py)
 - 100+ configurable parameters with documentation
@@ -160,11 +175,32 @@ MAX_BATCH_SIZE = 1        # Prompts per batch
 PRECISION = "bf16-mixed"  # bf16/fp16/fp32
 ```
 
+## Current Issue: Inference VRAM
+
+### Problem
+Model loads successfully (23.07 GB / 24 GB VRAM) but cannot generate text:
+- Tried to allocate: 16 MB for KV cache
+- Available: 34.81 MB
+- **Root cause**: Dequantization from MXFP4 (4-bit) → BF16 (16-bit)
+
+### Solution (Immediate)
+Reduce token generation in `workspace/inference.py`:
+```python
+NUM_TOKENS_TO_GENERATE = 20  # Was: 100
+```
+
+### Other Options
+- Add second GPU for expert parallelism
+- Research NeMo FP8 inference
+- Keep original MXFP4 quantization (if supported)
+
+See [PROJECT_STATUS.md](PROJECT_STATUS.md) for detailed analysis.
+
 ## Troubleshooting
 
 ### Out of Memory Errors
 - Reduce `MOE_TOPK` to 1
-- Reduce `NUM_TOKENS_TO_GENERATE`
+- Reduce `NUM_TOKENS_TO_GENERATE` to 20
 - Set `MAX_BATCH_SIZE = 1`
 
 ### Container Won't Start
@@ -182,6 +218,8 @@ docker exec nemo-gpt-oss nvidia-smi
 
 ## Documentation
 
+- [PROJECT_STATUS.md](PROJECT_STATUS.md) - **Current state, issues, and solutions**
+- [PREFLIGHT_CHECK.md](PREFLIGHT_CHECK.md) - Hardware/software readiness assessment
 - [UBUNTU_SETUP_GUIDE.md](UBUNTU_SETUP_GUIDE.md) - Step-by-step installation guide
 - [SETUP_STATUS.md](SETUP_STATUS.md) - Complete system status & CUDA technical details
 
@@ -199,4 +237,5 @@ Apache 2.0
 ---
 
 **Last Updated**: September 27, 2025
-**Status**: Production Ready on Ubuntu 24.04
+**Status**: Conversion Complete, Inference Requires Token Reduction
+**See**: [PROJECT_STATUS.md](PROJECT_STATUS.md) for complete details
