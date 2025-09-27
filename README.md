@@ -40,9 +40,9 @@ python inference.py
 ./install_cuda_stack.sh
 source ~/.bashrc
 
-# Install Python ML stack
+# Install Python ML stack (creates shared venv)
 ./install_python_ml_stack.sh
-source venv/bin/activate
+source ~/ml_envs/nemo_gpt_env/bin/activate
 
 # Run inference
 python workspace/inference.py
@@ -51,7 +51,7 @@ python workspace/inference.py
 ## Structure
 
 ```
-.
+/media/ubumax/WD_BLACK/AI_Projects/NeMo_GPT/
 ├── models/
 │   └── gpt-oss-20b/             # Downloaded model (~13GB)
 ├── workspace/
@@ -63,10 +63,13 @@ python workspace/inference.py
 ├── install_docker.sh            # Docker installation
 ├── install_nvidia_toolkit.sh    # NVIDIA Container Toolkit
 ├── install_cuda_stack.sh        # CUDA/cuDNN installation
-├── install_python_ml_stack.sh   # Python ML environment
+├── install_python_ml_stack.sh   # Python ML environment (shared)
 ├── start_nemo_container.sh      # Container startup
 ├── UBUNTU_SETUP_GUIDE.md        # Detailed Ubuntu setup guide
 └── README.md                    # This file
+
+~/ml_envs/
+└── nemo_gpt_env/                # Shared Python virtual environment
 ```
 
 ## System Specifications

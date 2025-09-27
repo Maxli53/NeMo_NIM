@@ -64,8 +64,8 @@ nvcc --version  # Verify
 ```bash
 ./install_python_ml_stack.sh
 
-# Activate virtual environment
-source /media/ubumax/WD_BLACK/AI_Projects/NeMo_GPT/venv/bin/activate
+# Activate virtual environment (shared location)
+source ~/ml_envs/nemo_gpt_env/bin/activate
 
 # Verify PyTorch with CUDA
 python -c "import torch; print(f'CUDA: {torch.cuda.is_available()}, {torch.cuda.get_device_name(0)}')"
@@ -112,8 +112,8 @@ docker logs nemo-gpt-oss
 
 ### Native Python Commands
 ```bash
-# Activate venv
-source venv/bin/activate
+# Activate venv (shared location)
+source ~/ml_envs/nemo_gpt_env/bin/activate
 
 # Deactivate
 deactivate
@@ -135,8 +135,10 @@ pip list | grep -E "torch|nemo|transformers"
 │   └── checkpoints/
 ├── install_cuda_stack.sh     # Install CUDA natively
 ├── install_python_ml_stack.sh # Install Python + ML libs
-├── start_nemo_container.sh   # Start Docker container
-└── venv/                     # Python virtual env (after install)
+└── start_nemo_container.sh   # Start Docker container
+
+~/ml_envs/
+└── nemo_gpt_env/             # Shared Python venv (after install)
 ```
 
 ## What's Installed (Native Option)

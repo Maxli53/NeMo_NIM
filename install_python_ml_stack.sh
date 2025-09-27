@@ -14,10 +14,12 @@ sudo apt-get install -y \
     cmake \
     git-lfs
 
+# Create shared ml_envs directory
+mkdir -p ~/ml_envs
+
 # Create virtual environment
-cd /media/ubumax/WD_BLACK/AI_Projects/NeMo_GPT
-python3.11 -m venv venv
-source venv/bin/activate
+python3.11 -m venv ~/ml_envs/nemo_gpt_env
+source ~/ml_envs/nemo_gpt_env/bin/activate
 
 # Upgrade pip
 pip install --upgrade pip setuptools wheel
@@ -65,5 +67,5 @@ pip install \
     vllm
 
 echo ""
-echo "✅ Python ML Stack installed in virtual environment!"
-echo "⚠️  Activate with: source /media/ubumax/WD_BLACK/AI_Projects/NeMo_GPT/venv/bin/activate"
+echo "✅ Python ML Stack installed in shared virtual environment!"
+echo "⚠️  Activate with: source ~/ml_envs/nemo_gpt_env/bin/activate"
