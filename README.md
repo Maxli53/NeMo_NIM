@@ -47,10 +47,18 @@ uv pip install -qqq \
 # Standard training
 python scripts/train_advanced.py --profile standard --validate
 
-# Custom configuration
+# Resume from checkpoint
+python scripts/train_advanced.py --profile standard \
+    --resume_from_checkpoint ./outputs/checkpoint-100
+
+# Custom dataset
+python scripts/prepare_dataset.py \
+    --input_file my_data.json \
+    --format alpaca \
+    --output_dir ./data/processed
+
 python scripts/train_simple.py \
-    --model_name unsloth/gpt-oss-20b \
-    --lora_r 16 \
+    --dataset_name ./data/processed/hf_dataset/train \
     --max_steps 100
 ```
 
@@ -79,6 +87,19 @@ python scripts/benchmark.py --model_path unsloth/gpt-oss-20b
 
 Settings: temp=1.0, top_p=1.0, top_k=0
 
+## Evaluation
+
+```bash
+# Evaluate model quality
+python scripts/evaluate.py \
+    --model_path ./final_model \
+    --dataset HuggingFaceH4/Multilingual-Thinking \
+    --compare_base
+
+# Benchmark performance
+python scripts/benchmark.py --model_path ./final_model
+```
+
 ## Export
 
 ```bash
@@ -94,10 +115,12 @@ python scripts/export_to_llama.py \
 ├── configs/training_optimal.yaml  # All training configs
 ├── scripts/
 │   ├── train_simple.py           # Basic training
-│   ├── train_advanced.py         # With monitoring
+│   ├── train_advanced.py         # Advanced with monitoring & resume
 │   ├── inference.py              # Generation
 │   ├── export_to_llama.py       # GGUF export
-│   └── benchmark.py              # Performance test
+│   ├── benchmark.py              # Performance test
+│   ├── prepare_dataset.py       # Dataset preparation
+│   └── evaluate.py               # Model evaluation
 ├── models/gpt-oss-20b/           # Model storage
 ├── data/                         # Datasets
 └── setup.sh                      # Setup script

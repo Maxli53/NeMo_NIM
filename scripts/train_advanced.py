@@ -42,6 +42,8 @@ def parse_args():
                        help="Override dataset")
     parser.add_argument("--output_dir", type=str, default="./outputs",
                        help="Output directory")
+    parser.add_argument("--resume_from_checkpoint", type=str,
+                       help="Resume training from checkpoint")
 
     # Advanced options
     parser.add_argument("--auto_adjust", action="store_true",
@@ -386,9 +388,11 @@ def main():
     # Train
     print("\n" + "=" * 60)
     print("Starting Training")
+    if args.resume_from_checkpoint:
+        print(f"Resuming from: {args.resume_from_checkpoint}")
     print("=" * 60)
 
-    train_result = trainer.train()
+    train_result = trainer.train(resume_from_checkpoint=args.resume_from_checkpoint)
 
     # Analyze results
     analyze_training_results(trainer, config)
