@@ -201,7 +201,7 @@ def create_trainer_advanced(model, tokenizer, train_dataset, eval_dataset, confi
         max_steps=training_config.get('max_steps', -1),
 
         # Optimization
-        learning_rate=float(training_config['learning_rate']),
+        learning_rate=float(training_config['learning_rate']),  # Must convert to float for Unsloth
         optim=training_config['optim'],
         weight_decay=training_config['weight_decay'],
 
@@ -210,9 +210,9 @@ def create_trainer_advanced(model, tokenizer, train_dataset, eval_dataset, confi
         warmup_steps=training_config.get('warmup_steps', 0),
         warmup_ratio=training_config.get('warmup_ratio', 0),
 
-        # Precision - Use bf16 for RTX 3090
-        fp16=False,
-        bf16=True,
+        # Precision
+        fp16=training_config.get('fp16', False),
+        bf16=training_config.get('bf16', True),
 
         # Logging and saving
         logging_steps=training_config['logging_steps'],
@@ -220,19 +220,19 @@ def create_trainer_advanced(model, tokenizer, train_dataset, eval_dataset, confi
         save_steps=training_config['save_steps'],
         save_total_limit=training_config['save_total_limit'],
 
-        # Evaluation
-        # evaluation_strategy=training_config.get('evaluation_strategy', 'no'),
-        # eval_steps=training_config.get('eval_steps', None),
-        # per_device_eval_batch_size=training_config.get('per_device_eval_batch_size', 1),
+        # Evaluation (only if eval_dataset provided)
+        evaluation_strategy=training_config.get('evaluation_strategy', 'no') if eval_dataset else 'no',
+        eval_steps=training_config.get('eval_steps', None) if eval_dataset else None,
+        per_device_eval_batch_size=training_config.get('per_device_eval_batch_size', 1),
 
-        # Best model
-        # load_best_model_at_end=training_config.get('load_best_model_at_end', False),
-        # metric_for_best_model=training_config.get('metric_for_best_model', 'eval_loss'),
-        # greater_is_better=training_config.get('greater_is_better', False),
+        # Best model (only if eval_dataset provided)
+        load_best_model_at_end=training_config.get('load_best_model_at_end', False) if eval_dataset else False,
+        metric_for_best_model=training_config.get('metric_for_best_model', 'eval_loss') if eval_dataset else None,
+        greater_is_better=training_config.get('greater_is_better', False),
 
         # Other
         seed=training_config['seed'],
-        report_to='none',  # Disable tensorboard for now
+        report_to=training_config.get('report_to', 'none'),  # Configurable reporting
 
         # SFT specific
         max_seq_length=config['model']['max_seq_length'],

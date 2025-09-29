@@ -1,0 +1,48 @@
+# Official Unsloth Configuration for GPT-OSS-20B
+# Based on official notebooks and documentation
+
+model:
+  name: "unsloth/gpt-oss-20b-unsloth-bnb-4bit"  # Pre-quantized version!
+  max_seq_length: 1024
+  dtype: null  # Auto-detect
+  load_in_4bit: true
+
+lora:
+  r: 8  # Official recommendation
+  lora_alpha: 16  # 2x rank
+  lora_dropout: 0  # 0 for speed
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+  bias: "none"
+  use_gradient_checkpointing: "unsloth"
+  random_state: 3407
+  use_rslora: false
+  loftq_config: null
+
+training:
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 8
+  learning_rate: 2e-4
+  num_train_epochs: 1
+  optim: "adamw_8bit"
+  weight_decay: 0.01
+  lr_scheduler_type: "linear"
+  warmup_steps: 10
+  fp16: false
+  bf16: true
+  logging_steps: 1
+  save_strategy: "steps"
+  save_steps: 50
+  seed: 3407
+
+dataset:
+  name: "HuggingFaceH4/Multilingual-Thinking"
+  split: "train[:1000]"
+  reasoning_effort: "medium"
+  train_on_completions_only: true

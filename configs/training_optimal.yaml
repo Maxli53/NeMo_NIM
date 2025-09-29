@@ -59,8 +59,8 @@ training:
   warmup_ratio: 0.05                     # Alternative to steps
 
   # Precision
-  fp16: true                             # Mixed precision
-  bf16: false                            # Use if supported
+  fp16: false                            # Use bf16 for RTX 3090
+  bf16: true                             # Better for RTX 3090/4090
 
   # Logging and saving
   logging_steps: 1
@@ -76,7 +76,7 @@ training:
   greater_is_better: false
 
   # Reporting
-  report_to: ["tensorboard", "wandb"]
+  report_to: "none"                      # Options: "none", "tensorboard", "wandb"
 
   # Seed
   seed: 3407
