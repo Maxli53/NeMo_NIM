@@ -145,10 +145,25 @@ python scripts/export_to_llama.py \
 | QLoRA r=16 | 16GB | Balanced |
 | LoRA r=16 | 44GB | Fastest |
 
+## Advanced: GRPO/RL Training (NEW!)
+
+```bash
+# Train with reinforcement learning (15GB VRAM)
+python scripts/train_grpo.py \
+    --task code_optimization \
+    --max_steps 100 \
+    --num_generations 2
+
+# Available tasks: code_optimization, reasoning, creative
+```
+
+See `docs/GRPO_RL_GUIDE.md` for complete RL documentation.
+
 ## Resources
 
 - [Unsloth Docs](https://docs.unsloth.ai/)
 - [GPT-OSS Guide](https://docs.unsloth.ai/new/gpt-oss-how-to-run-and-fine-tune)
+- [GRPO Notebook](https://colab.research.google.com/github/unslothai/notebooks/blob/main/nb/gpt-oss-(20B)-GRPO.ipynb)
 - [Model Hub](https://huggingface.co/unsloth/gpt-oss-20b-GGUF)
 
 ---
