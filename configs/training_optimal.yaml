@@ -1,0 +1,173 @@
+# Optimized Training Configuration for GPT-OSS-20B
+# Based on Unsloth LoRA Hyperparameters Guide
+
+# Model Configuration
+model:
+  name: "unsloth/gpt-oss-20b"  # Use MXFP4 format
+  max_seq_length: 2048  # Start with 2048 for quick testing
+  load_in_4bit: true    # QLoRA for RTX 3090 (14GB VRAM)
+  dtype: null           # Auto-detect
+
+# LoRA Configuration (Optimized for GPT-OSS-20B)
+lora:
+  # Rank: 16 or 32 recommended for balance
+  r: 16                 # Can increase to 32 for complex tasks
+
+  # Alpha: Set equal to rank or 2*rank
+  lora_alpha: 16        # Or use 32 (2*r) for more aggressive learning
+
+  # Dropout: 0 for speed, 0.1 if overfitting
+  lora_dropout: 0       # Increase to 0.1 if overfitting detected
+
+  # Target all major layers for best quality
+  target_modules:
+    - "q_proj"          # Attention layers
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"       # MLP/FFN layers
+    - "up_proj"
+    - "down_proj"
+
+  # Advanced options
+  bias: "none"                          # Optimized for speed
+  use_gradient_checkpointing: "unsloth"  # 30% less VRAM
+  random_state: 3407                     # Reproducibility
+  use_rslora: false                      # Set true for rank > 32
+  loftq_config: null                     # Advanced initialization
+
+# Training Configuration
+training:
+  # Batch size configuration (Effective batch size = 16)
+  per_device_train_batch_size: 2        # RTX 3090 constraint
+  gradient_accumulation_steps: 8        # 2 * 8 = 16 effective
+
+  # Learning rate (2e-4 for normal fine-tuning)
+  learning_rate: 2e-4                   # Standard for LoRA
+
+  # Training duration
+  num_train_epochs: 1                   # Start with 1, max 3
+  max_steps: -1                          # Or set specific steps
+
+  # Optimization
+  optim: "adamw_8bit"                    # Memory efficient
+  weight_decay: 0.01                     # Regularization
+
+  # Scheduler
+  lr_scheduler_type: "linear"            # Or "cosine"
+  warmup_steps: 10                       # 5-10% of total steps
+  warmup_ratio: 0.05                     # Alternative to steps
+
+  # Precision
+  fp16: true                             # Mixed precision
+  bf16: false                            # Use if supported
+
+  # Logging and saving
+  logging_steps: 1
+  save_strategy: "steps"
+  save_steps: 50
+  save_total_limit: 3
+  evaluation_strategy: "steps"
+  eval_steps: 100
+
+  # Early stopping
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+  greater_is_better: false
+
+  # Reporting
+  report_to: ["tensorboard", "wandb"]
+
+  # Seed
+  seed: 3407
+
+# Dataset Configuration
+dataset:
+  name: "HuggingFaceH4/Multilingual-Thinking"
+  split: "train"
+  max_samples: -1                       # Use all samples
+  train_on_completions_only: true       # Better accuracy
+
+  # Data formatting
+  reasoning_effort: "medium"             # GPT-OSS specific
+  add_generation_prompt: false
+
+  # Data collation
+  remove_unused_columns: true
+  label_ids_padding: -100
+
+# GPT-OSS Specific
+gpt_oss:
+  reasoning_effort_distribution:
+    low: 0.25
+    medium: 0.50
+    high: 0.25
+
+  # Chat template parts for training on completions only
+  instruction_part: "<|start|>user<|message|>"
+  response_part: "<|start|>assistant<|channel|>"
+
+# Hardware Configuration
+hardware:
+  device: "cuda:0"                       # Single GPU
+  n_gpu: 1                              # Use 2 for dual GPU
+  cuda_visible_devices: "0"              # Or "0,1" for both
+
+# Optimization Profiles (Quick presets)
+profiles:
+  quick_test:
+    max_steps: 30
+    eval_steps: 10
+    save_steps: 15
+
+  standard:
+    max_steps: 100
+    eval_steps: 25
+    save_steps: 50
+
+  full_training:
+    num_train_epochs: 1
+    max_steps: -1
+    eval_steps: 100
+    save_steps: 200
+
+  high_quality:
+    r: 32
+    lora_alpha: 64
+    learning_rate: 1e-4
+    num_train_epochs: 2
+
+  memory_efficient:
+    r: 8
+    per_device_train_batch_size: 1
+    gradient_accumulation_steps: 16
+    max_seq_length: 1024
+
+# Monitoring Thresholds
+monitoring:
+  overfitting_loss_threshold: 0.2       # Alert if training loss < 0.2
+  underfitting_epochs: 3                # Alert if no improvement
+  max_gradient_norm: 1.0                # Gradient clipping
+
+# Recommendations for different scenarios:
+#
+# 1. First Run (Testing):
+#    - Use profile: quick_test
+#    - r: 8, learning_rate: 2e-4
+#    - max_steps: 30
+#
+# 2. Quality Focus:
+#    - Use profile: high_quality
+#    - r: 32, lora_alpha: 64
+#    - Train on completions only
+#
+# 3. VRAM Limited (< 16GB):
+#    - Use profile: memory_efficient
+#    - batch_size: 1, gradient_accumulation: 16
+#    - max_seq_length: 1024 or 2048
+#
+# 4. Production Training:
+#    - r: 16-32
+#    - num_epochs: 1-2
+#    - Enable evaluation
+#    - Monitor for overfitting

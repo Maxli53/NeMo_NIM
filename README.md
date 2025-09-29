@@ -1,256 +1,132 @@
-# Unsloth GPT-OSS-20B Fine-tuning Project
+# Unsloth GPT-OSS-20B Fine-tuning
 
-Efficient fine-tuning of GPT-OSS-20B using Unsloth - optimized for 2x RTX 3090 GPUs with only 14GB VRAM required.
+Efficient fine-tuning of GPT-OSS-20B using Unsloth. Requires only 14GB VRAM on RTX 3090.
 
-## 🚀 Quick Start (15 minutes)
+## Quick Start
 
 ```bash
-# 1. Run setup
-cd /media/ubumax/WD_BLACK/AI_Projects/Unsloth_GPT/
+# Setup (one-time)
 ./setup.sh
-
-# 2. Activate environment
 source venv/bin/activate
-source .env
 
-# 3. Test setup
-python test_setup.py
+# Train (30 steps test)
+python scripts/train_advanced.py --profile quick_test
 
-# 4. Start training (100 steps demo)
-python scripts/train.py \
-    --max_steps 100 \
-    --output_dir ./checkpoints
-
-# 5. Run inference
-python scripts/inference.py \
-    --model_path ./final_model \
-    --interactive
+# Inference
+python scripts/inference.py --model_path unsloth/gpt-oss-20b --interactive
 ```
 
-## 📋 Project Overview
+## Installation
 
-### Why Unsloth?
-- **14GB VRAM** for QLoRA training (vs 80GB+ for standard methods)
-- **2-5x faster** training with Flash Attention 2
-- **Pre-optimized** GPT-OSS-20B model ready to use
-- **Direct GGUF export** for llama.cpp deployment
-
-### Model Specifications
-- **Parameters**: 21B total, 3.6B active (MoE architecture)
-- **Context**: 128K tokens maximum
-- **Experts**: 32 total, 4 active per token
-- **License**: Apache 2.0
-
-### Hardware Requirements
-- **Minimum**: 14GB VRAM (single RTX 3090)
-- **Available**: 2x RTX 3090 (48GB total)
-- **Training**: QLoRA uses single GPU
-- **Inference**: 12GB for 4-bit model
-
-## 📁 Project Structure
-
-```
-Unsloth_GPT/
-├── scripts/
-│   ├── train.py          # Training with LoRA/QLoRA
-│   └── inference.py      # Generation with official settings
-├── models/
-│   ├── checkpoints/      # Training checkpoints
-│   ├── lora_adapters/    # LoRA weights
-│   └── gguf/            # GGUF exports
-├── data/                 # Datasets
-├── configs/             # Configuration files
-├── ROADMAP.md          # Complete implementation plan
-├── SETUP_GUIDE.md      # Detailed setup instructions
-└── README.md           # This file
-```
-
-## 🔧 Installation
-
-### Automated Setup
+### Automated
 ```bash
-./setup.sh
+./setup.sh  # Installs everything with UV package manager
 ```
 
-### Manual Setup
+### Manual
 ```bash
-# Create environment
 python3 -m venv venv
 source venv/bin/activate
-
-# Install Unsloth
-pip install --upgrade --force-reinstall --no-cache-dir unsloth unsloth_zoo
-
-# Install dependencies
-pip install --no-deps trl peft accelerate bitsandbytes
-pip install datasets transformers huggingface_hub
+pip install --upgrade -qqq uv
+uv pip install -qqq \
+    "torch>=2.8.0" "triton>=3.4.0" \
+    "unsloth[base] @ git+https://github.com/unslothai/unsloth" \
+    "unsloth_zoo[base] @ git+https://github.com/unslothai/unsloth-zoo" \
+    bitsandbytes transformers datasets trl
 ```
 
-## 🎯 Training
+## Training
 
-### Basic Training (100 steps test)
+### Profiles
+- `quick_test`: 30 steps validation
+- `standard`: 100 steps training
+- `high_quality`: r=32, 2 epochs
+- `memory_efficient`: r=8, 1024 context
+
 ```bash
-python scripts/train.py \
-    --model_name "unsloth/gpt-oss-20b-unsloth-bnb-4bit" \
-    --max_steps 100 \
-    --output_dir ./checkpoints
+# Standard training
+python scripts/train_advanced.py --profile standard --validate
+
+# Custom configuration
+python scripts/train_simple.py \
+    --model_name unsloth/gpt-oss-20b \
+    --lora_r 16 \
+    --max_steps 100
 ```
 
-### Full Training with Custom Dataset
-```bash
-python scripts/train.py \
-    --model_name "unsloth/gpt-oss-20b-unsloth-bnb-4bit" \
-    --dataset_name "HuggingFaceH4/Multilingual-Thinking" \
-    --max_steps 1000 \
-    --learning_rate 2e-4 \
-    --output_dir ./checkpoints \
-    --final_output_dir ./final_model
+### Key Settings (RTX 3090)
+```yaml
+Model: unsloth/gpt-oss-20b
+QLoRA: 14GB VRAM
+Batch: 2, Accumulation: 8 (effective=16)
+LoRA rank: 16, Alpha: 16
+Learning rate: 2e-4
+Max epochs: 1-2
 ```
 
-### Training Parameters
-- **Batch Size**: 1 (RTX 3090 constraint)
-- **Gradient Accumulation**: 4 (effective batch = 4)
-- **LoRA Rank**: 8 (official recommendation)
-- **Learning Rate**: 2e-4
-- **Optimizer**: AdamW 8-bit
+## Inference
 
-## 🤖 Inference
-
-### Interactive Chat
 ```bash
+# Interactive chat
 python scripts/inference.py \
-    --model_path "unsloth/gpt-oss-20b-unsloth-bnb-4bit" \
+    --model_path ./final_model \
     --interactive \
     --reasoning_effort medium
+
+# Benchmark
+python scripts/benchmark.py --model_path unsloth/gpt-oss-20b
 ```
 
-### Single Prompt
+Settings: temp=1.0, top_p=1.0, top_k=0
+
+## Export
+
 ```bash
-python scripts/inference.py \
+# To GGUF for llama.cpp
+python scripts/export_to_llama.py \
     --model_path ./final_model \
-    --prompt "Explain quantum computing" \
-    --max_new_tokens 500
+    --quantization Q4_K_M
 ```
 
-### Batch Processing
-```bash
-python scripts/inference.py \
-    --model_path ./final_model \
-    --prompt_file prompts.txt \
-    --output_file results.json
+## Project Structure
+
+```
+├── configs/training_optimal.yaml  # All training configs
+├── scripts/
+│   ├── train_simple.py           # Basic training
+│   ├── train_advanced.py         # With monitoring
+│   ├── inference.py              # Generation
+│   ├── export_to_llama.py       # GGUF export
+│   └── benchmark.py              # Performance test
+├── models/gpt-oss-20b/           # Model storage
+├── data/                         # Datasets
+└── setup.sh                      # Setup script
 ```
 
-### Official Recommended Settings
-- **Temperature**: 1.0
-- **Top-P**: 1.0
-- **Top-K**: 0 (or 100)
-- **Min Context**: 16,384 tokens
+## Hyperparameter Guide
 
-## 📊 Performance Benchmarks
+### Avoiding Overfitting
+- Loss < 0.2: Reduce epochs, lower LR, increase weight_decay
+- Use r=16, alpha=16 (ratio=1)
 
-| Mode | VRAM Usage | Speed | Notes |
-|------|------------|-------|-------|
-| QLoRA Training | 14GB | 2.5x faster | Single RTX 3090 |
-| 4-bit Inference | 12GB | 20-30 tokens/s | Q4_K_M GGUF |
-| 16-bit Inference | 14GB | 10-15 tokens/s | Full precision |
+### Best Practices
+- Target all 7 modules (attention + MLP)
+- Train on completions only (+1-3% accuracy)
+- Effective batch size = 16
+- QLoRA saves 75% VRAM vs LoRA
 
-## 🔄 Export to GGUF
+### Memory by Configuration
+| Setting | VRAM | Speed |
+|---------|------|-------|
+| QLoRA r=8 | 14GB | Fast |
+| QLoRA r=16 | 16GB | Balanced |
+| LoRA r=16 | 44GB | Fastest |
 
-### During Training
-```python
-# Automatically prompted after training
-Export to GGUF format? (y/n): y
-```
+## Resources
 
-### Manual Export
-```python
-from unsloth import FastLanguageModel
-
-model, tokenizer = FastLanguageModel.from_pretrained("./final_model")
-model.save_pretrained_gguf(
-    "./models/gguf",
-    tokenizer,
-    quantization_method="q4_k_m"  # Best quality/size
-)
-```
-
-### Use with llama.cpp
-```bash
-# Build llama.cpp
-git clone https://github.com/ggml-org/llama.cpp
-cd llama.cpp
-cmake -B build -DGGML_CUDA=ON
-cmake --build build --config Release
-
-# Run inference
-./build/bin/llama-cli \
-    --model ../models/gguf/gpt-oss-20b-Q4_K_M.gguf \
-    --ctx-size 16384 \
-    --n-gpu-layers 99 \
-    --temp 1.0 \
-    --interactive
-```
-
-## 📚 Documentation
-
-- **[ROADMAP.md](ROADMAP.md)** - Complete implementation plan with phases
-- **[SETUP_GUIDE.md](SETUP_GUIDE.md)** - Detailed setup instructions
-- **[scripts/](scripts/)** - Training and inference scripts
-
-## 🔍 Troubleshooting
-
-### CUDA Out of Memory
-```python
-# Reduce sequence length
---max_seq_length 8192
-
-# Or use CPU offloading
---load_in_4bit --device_map auto
-```
-
-### Slow Training
-```bash
-# Verify Flash Attention
-python -c "from unsloth import FastLanguageModel; print('Flash Attention enabled')"
-```
-
-### Installation Issues
-```bash
-# Complete reinstall
-pip uninstall unsloth unsloth_zoo -y
-pip install --upgrade --force-reinstall --no-cache-dir unsloth unsloth_zoo
-```
-
-## 📖 Resources
-
-### Official Documentation
 - [Unsloth Docs](https://docs.unsloth.ai/)
 - [GPT-OSS Guide](https://docs.unsloth.ai/new/gpt-oss-how-to-run-and-fine-tune)
-- [Training Notebook](https://colab.research.google.com/github/unslothai/notebooks/blob/main/nb/gpt-oss-(20B)-Fine-tuning.ipynb)
-
-### Models
-- [unsloth/gpt-oss-20b-unsloth-bnb-4bit](https://huggingface.co/unsloth/gpt-oss-20b-unsloth-bnb-4bit)
-- [unsloth/gpt-oss-20b-GGUF](https://huggingface.co/unsloth/gpt-oss-20b-GGUF)
-
-### Community
-- [Unsloth Discord](https://discord.gg/unsloth)
-- [GitHub Issues](https://github.com/unslothai/unsloth/issues)
-
-## ✅ Current Status
-
-- ✅ Project structure created
-- ✅ Documentation complete
-- ✅ Training script ready
-- ✅ Inference script ready
-- ✅ Setup automation ready
-- ⏳ Awaiting first training run
-
-## 📝 License
-
-Apache 2.0
+- [Model Hub](https://huggingface.co/unsloth/gpt-oss-20b-GGUF)
 
 ---
-
-**Created**: 2025-09-29
-**Hardware**: 2x RTX 3090 (24GB each)
-**Target**: GPT-OSS-20B with QLoRA
+Hardware: 2x RTX 3090 (24GB each) | Created: 2025-09-29
