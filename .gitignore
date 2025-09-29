@@ -56,6 +56,9 @@ dist/
 *.egg-info/
 llama.cpp/
 
+# Unsloth cache
+unsloth_compiled_cache/
+
 # Keep directory structure
 !data/raw/.gitkeep
 !data/processed/.gitkeep

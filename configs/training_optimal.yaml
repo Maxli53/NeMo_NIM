@@ -4,7 +4,7 @@
 # Model Configuration
 model:
   name: "unsloth/gpt-oss-20b"  # Use MXFP4 format
-  max_seq_length: 2048  # Start with 2048 for quick testing
+  max_seq_length: 1024  # Reduce for memory constraints
   load_in_4bit: true    # QLoRA for RTX 3090 (14GB VRAM)
   dtype: null           # Auto-detect
 
@@ -109,9 +109,9 @@ gpt_oss:
 
 # Hardware Configuration
 hardware:
-  device: "cuda:0"                       # Single GPU
+  device: "cuda:1"                       # Use GPU 1 (GPU 0 has display)
   n_gpu: 1                              # Use 2 for dual GPU
-  cuda_visible_devices: "0"              # Or "0,1" for both
+  cuda_visible_devices: "1"              # Or "0,1" for both
 
 # Optimization Profiles (Quick presets)
 profiles:

@@ -15,7 +15,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Check if running from correct directory
-if [ ! -f "ROADMAP.md" ]; then
+if [ ! -f "README.md" ]; then
     echo -e "${RED}Error: Please run this script from the Unsloth_GPT directory${NC}"
     exit 1
 fi

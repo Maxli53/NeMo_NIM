@@ -94,14 +94,7 @@ def load_model_with_config(config):
     print(f"Sequence length: {model_config['max_seq_length']}")
     print(f"4-bit mode: {model_config['load_in_4bit']}")
 
-    # Load base model
-    # Use local path if it exists
-    import os
-    local_model_path = "/media/ubumax/WD_BLACK/AI_Projects/Unsloth_GPT/models/gpt-oss-20b"
-    if os.path.exists(local_model_path) and "gpt-oss-20b" in model_config['name']:
-        model_config['name'] = local_model_path
-        print(f"Using local model at: {local_model_path}")
-
+    # Load base model (Unsloth will use HF cache automatically)
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=model_config['name'],
         max_seq_length=model_config['max_seq_length'],
