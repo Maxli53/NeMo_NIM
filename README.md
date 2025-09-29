@@ -35,6 +35,79 @@ uv pip install -qqq \
     bitsandbytes transformers datasets trl
 ```
 
+## Model Setup & Cache Management
+
+### Model Download
+The GPT-OSS-20B 4-bit model (~12GB) needs to be downloaded correctly for Unsloth to find it:
+
+#### Option 1: Let Unsloth Handle It (Recommended)
+Simply use the model in your code and Unsloth will download to the correct location:
+```python
+from unsloth import FastLanguageModel
+model, tokenizer = FastLanguageModel.from_pretrained(
+    model_name="unsloth/gpt-oss-20b-unsloth-bnb-4bit",
+    max_seq_length=1024,
+    dtype=None,
+    load_in_4bit=True,
+)
+```
+
+#### Option 2: Manual Download to HF Cache
+If you've already downloaded the model elsewhere, you need to place it in the HF cache:
+
+1. **Expected Cache Structure**:
+```
+~/.cache/huggingface/hub/models--unsloth--gpt-oss-20b-unsloth-bnb-4bit/
+├── blobs/
+│   ├── f229f4...8b89 (model-00001, 3.8GB)
+│   ├── 2b75ef...0a30 (model-00002, 3.8GB)
+│   ├── 76cc7c...f90  (model-00003, 3.2GB)
+│   └── 31709e...e7bc (model-00004, 1.1GB)
+└── snapshots/093fba.../
+    ├── model-00001-of-00004.safetensors -> ../../blobs/f229f4...
+    └── [symlinks to other shards]
+```
+
+2. **Fix Existing Download**:
+```bash
+# If you downloaded to custom directory, copy to cache:
+SOURCE_DIR="/path/to/your/downloaded/model"
+CACHE_DIR="$HOME/.cache/huggingface/hub/models--unsloth--gpt-oss-20b-unsloth-bnb-4bit"
+
+# Create structure
+mkdir -p $CACHE_DIR/blobs
+mkdir -p $CACHE_DIR/snapshots/093fba6992ef5a7152481afec0bdfca1ac486998
+
+# Copy with correct hash names (required!)
+cp $SOURCE_DIR/model-00001-of-00004.safetensors $CACHE_DIR/blobs/f229f4364b1f2cfa7df0ced4d22777145d3d552f95512f98b20493ea094e8b89
+cp $SOURCE_DIR/model-00002-of-00004.safetensors $CACHE_DIR/blobs/2b75ef14502b54c47cad18bb6c2f96e919991ba994a3331799e38891ac290a30
+cp $SOURCE_DIR/model-00003-of-00004.safetensors $CACHE_DIR/blobs/76cc7c3bf1cd287a8a7cea77e00eb45ce6d6a0fbc7084d29a347eed0b398af90
+cp $SOURCE_DIR/model-00004-of-00004.safetensors $CACHE_DIR/blobs/31709e4bd1403df4437091d952e2ec837efbbfc06337b4b2b6c6875491e0e7bc
+
+# Create symlinks
+cd $CACHE_DIR/snapshots/093fba6992ef5a7152481afec0bdfca1ac486998
+ln -sf ../../blobs/f229f4364b1f2cfa7df0ced4d22777145d3d552f95512f98b20493ea094e8b89 model-00001-of-00004.safetensors
+ln -sf ../../blobs/2b75ef14502b54c47cad18bb6c2f96e919991ba994a3331799e38891ac290a30 model-00002-of-00004.safetensors
+ln -sf ../../blobs/76cc7c3bf1cd287a8a7cea77e00eb45ce6d6a0fbc7084d29a347eed0b398af90 model-00003-of-00004.safetensors
+ln -sf ../../blobs/31709e4bd1403df4437091d952e2ec837efbbfc06337b4b2b6c6875491e0e7bc model-00004-of-00004.safetensors
+```
+
+### Important: Use Model NAME, Not Path!
+❌ **WRONG** - Will cause re-download:
+```python
+model_name="./models/gpt-oss-20b-4bit"  # Local path doesn't work!
+```
+
+✅ **CORRECT** - Uses cached model:
+```python
+model_name="unsloth/gpt-oss-20b-unsloth-bnb-4bit"  # Model name from HF
+```
+
+### Common Issues
+- **"Fetching 4 files" despite having model**: Model not in correct cache location
+- **5+ minute load times**: Model being re-downloaded, check cache structure
+- **"GptOssForCausalLM not found"**: Use Unsloth's FastLanguageModel, not raw transformers
+
 ## Training
 
 ### Profiles
