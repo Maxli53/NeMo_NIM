@@ -18,7 +18,7 @@ import torch
 import numpy as np
 from unsloth import FastLanguageModel
 from trl import SFTTrainer, SFTConfig
-from transformers import TrainingArguments, EarlyStoppingCallback
+from transformers import TrainingArguments, EarlyStoppingCallback, TrainerCallback
 from datasets import load_dataset
 from unsloth.chat_templates import standardize_sharegpt, train_on_responses_only
 import json
@@ -95,6 +95,13 @@ def load_model_with_config(config):
     print(f"4-bit mode: {model_config['load_in_4bit']}")
 
     # Load base model
+    # Use local path if it exists
+    import os
+    local_model_path = "/media/ubumax/WD_BLACK/AI_Projects/Unsloth_GPT/models/gpt-oss-20b"
+    if os.path.exists(local_model_path) and "gpt-oss-20b" in model_config['name']:
+        model_config['name'] = local_model_path
+        print(f"Using local model at: {local_model_path}")
+
     model, tokenizer = FastLanguageModel.from_pretrained(
         model_name=model_config['name'],
         max_seq_length=model_config['max_seq_length'],
@@ -124,7 +131,7 @@ def load_model_with_config(config):
 
     return model, tokenizer
 
-def prepare_dataset_advanced(config, tokenizer):
+def prepare_dataset_advanced(config, tokenizer, args):
     """Prepare dataset with advanced formatting"""
     dataset_config = config['dataset']
 
@@ -170,7 +177,7 @@ def prepare_dataset_advanced(config, tokenizer):
     dataset = dataset.map(formatting_prompts_func, batched=True)
 
     # Split for validation if requested
-    if config.get('validate', False):
+    if args.validate:
         dataset = dataset.train_test_split(test_size=0.1, seed=config['training']['seed'])
         print(f"Training samples: {len(dataset['train'])}")
         print(f"Validation samples: {len(dataset['test'])}")
@@ -201,7 +208,7 @@ def create_trainer_advanced(model, tokenizer, train_dataset, eval_dataset, confi
         max_steps=training_config.get('max_steps', -1),
 
         # Optimization
-        learning_rate=training_config['learning_rate'],
+        learning_rate=float(training_config['learning_rate']),
         optim=training_config['optim'],
         weight_decay=training_config['weight_decay'],
 
@@ -210,9 +217,9 @@ def create_trainer_advanced(model, tokenizer, train_dataset, eval_dataset, confi
         warmup_steps=training_config.get('warmup_steps', 0),
         warmup_ratio=training_config.get('warmup_ratio', 0),
 
-        # Precision
-        fp16=training_config.get('fp16', True),
-        bf16=training_config.get('bf16', False),
+        # Precision - Use bf16 for RTX 3090
+        fp16=False,
+        bf16=True,
 
         # Logging and saving
         logging_steps=training_config['logging_steps'],
@@ -221,18 +228,18 @@ def create_trainer_advanced(model, tokenizer, train_dataset, eval_dataset, confi
         save_total_limit=training_config['save_total_limit'],
 
         # Evaluation
-        evaluation_strategy=training_config.get('evaluation_strategy', 'no'),
-        eval_steps=training_config.get('eval_steps', None),
-        per_device_eval_batch_size=training_config.get('per_device_eval_batch_size', 1),
+        # evaluation_strategy=training_config.get('evaluation_strategy', 'no'),
+        # eval_steps=training_config.get('eval_steps', None),
+        # per_device_eval_batch_size=training_config.get('per_device_eval_batch_size', 1),
 
         # Best model
-        load_best_model_at_end=training_config.get('load_best_model_at_end', False),
-        metric_for_best_model=training_config.get('metric_for_best_model', 'eval_loss'),
-        greater_is_better=training_config.get('greater_is_better', False),
+        # load_best_model_at_end=training_config.get('load_best_model_at_end', False),
+        # metric_for_best_model=training_config.get('metric_for_best_model', 'eval_loss'),
+        # greater_is_better=training_config.get('greater_is_better', False),
 
         # Other
         seed=training_config['seed'],
-        report_to=training_config.get('report_to', ['tensorboard']),
+        report_to='none',  # Disable tensorboard for now
 
         # SFT specific
         max_seq_length=config['model']['max_seq_length'],
@@ -269,7 +276,7 @@ def create_trainer_advanced(model, tokenizer, train_dataset, eval_dataset, confi
         callbacks.append(early_stopping)
 
     # Custom callback for monitoring
-    class MonitoringCallback:
+    class MonitoringCallback(TrainerCallback):
         def on_log(self, args, state, control, logs=None, **kwargs):
             if logs:
                 # Check for overfitting
@@ -380,7 +387,7 @@ def main():
     model, tokenizer = load_model_with_config(config)
 
     # Prepare dataset
-    train_dataset, eval_dataset = prepare_dataset_advanced(config, tokenizer)
+    train_dataset, eval_dataset = prepare_dataset_advanced(config, tokenizer, args)
 
     # Create trainer
     trainer = create_trainer_advanced(model, tokenizer, train_dataset, eval_dataset, config, args)
