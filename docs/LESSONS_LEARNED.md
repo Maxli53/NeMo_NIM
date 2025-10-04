@@ -383,4 +383,143 @@ Start locally for development, use cloud for:
 
 ---
 
+### 10. Flash Attention 2 Compatibility Issues (2025-10-04)
+
+#### The Problem
+Attempted to install Flash Attention 2 for faster inference but encountered multiple issues:
+
+#### What We Tried
+1. **Flash Attention 2.8.3**: Installed but Unsloth requires <=2.8.2
+2. **Flash Attention 2.8.2**: Compilation hung/timed out after 5+ minutes
+3. **Flash Attention 2.7.4.post1**: Also required compilation, timed out
+4. **Flash Attention 2.6.3**: Pre-built wheel had ABI incompatibility with PyTorch 2.8
+
+#### Root Causes
+- **PyTorch 2.8 + CUDA 12.8**: Bleeding edge combo with no pre-built wheels
+- **Compilation issues**: Flash Attention compilation is notoriously difficult
+  - Requires 8-10GB RAM during compilation
+  - Compiles hundreds of CUDA kernels
+  - Often fails silently or hangs
+- **Version sensitivity**: Exact match required for PyTorch, CUDA, GCC versions
+
+#### Solution
+Proceeded without Flash Attention 2:
+- **Unsloth optimizations**: Custom Triton kernels provide 2x speedup
+- **Xformers**: Memory-efficient attention as fallback (installed and working)
+- **Result**: 15-16 tokens/sec (acceptable for 20B model on RTX 3090)
+
+#### Key Learnings
+1. **Don't chase marginal gains**: FA2 would only add 2-3 tokens/sec
+2. **Pre-built wheels are crucial**: Compilation from source is unreliable
+3. **Unsloth is already optimized**: Their kernels are faster than FA2 anyway
+4. **Memory bandwidth is the real bottleneck**: For 20B models, not attention computation
+
+### 11. Chat Template Alignment (2025-10-04)
+
+#### The Issue
+Model responses included template artifacts like `final<|message|>` and `analysis<|message|>`
+
+#### Root Cause
+Mismatch between training and inference templates:
+- **Training**: Used `tokenizer.apply_chat_template()` with official format
+- **Inference**: Manually constructed template strings (incorrect)
+
+#### Solution
+Always use `tokenizer.apply_chat_template()` for both training and inference:
+```python
+# Correct approach
+formatted = tokenizer.apply_chat_template(
+    messages,
+    tokenize=False,
+    add_generation_prompt=True,  # True for inference, False for training
+    reasoning_effort="low"  # GPT-OSS specific parameter
+)
+```
+
+#### Key Insight
+The `chat_template.jinja` file saved with the model defines the exact format. GPT-OSS-20B has special features:
+- Three channels: analysis, commentary, final
+- Reasoning levels: low, medium, high
+- Developer role separate from system
+
+### 12. Performance Measurement Pitfalls
+
+#### The Problem
+Chat.py showed 5-8 tokens/sec but actual speed was 15-16 tokens/sec
+
+#### Root Cause
+Including model loading time in speed measurement:
+- Model loading: ~12 seconds
+- Actual inference: Fast
+- Reported speed: (tokens generated) / (loading + inference time)
+
+#### Solution
+Separate model loading from inference timing:
+```python
+# Load once
+model = load_model()  # 12 seconds
+
+# Then measure
+start = time.time()
+output = generate(model, prompt)
+speed = tokens / (time.time() - start)  # Accurate speed
+```
+
+#### Lesson
+Always profile code properly - identify where time is actually spent
+
+### 13. GPT-OSS Channel Handling Issue (2025-10-05) ✅ SOLVED
+
+#### The Problem
+Model would generate complete analysis in "analysis channel" but the "final channel" would only output single characters like "I" or "My" then stop.
+
+#### Discovery Process
+1. User noticed model showed thinking process but no actual answer
+2. Initially suspected token limit issue - increased to 1500, no change
+3. With "Show Thinking OFF" - worked perfectly
+4. With "Show Thinking ON" - final channel cut off after one word
+5. Both base and fine-tuned models showed same behavior
+
+#### Root Cause
+GPT-OSS generates `<|end|>` tokens after each channel:
+```
+<|channel|>analysis<|message|>...thinking...<|end|>
+<|channel|>commentary<|message|>...more thinking...<|end|>
+<|channel|>final<|message|>I<|return|>  # Cut off here!
+```
+
+The streaming code was stopping at the FIRST `<|end|>` token, never reaching the final channel.
+
+#### Solution
+Created custom `ChannelStoppingCriteria` class:
+```python
+class ChannelStoppingCriteria(StoppingCriteria):
+    def __call__(self, input_ids, scores, **kwargs) -> bool:
+        # Track if we've entered final channel
+        generated_text = self.tokenizer.decode(input_ids[0])
+        if "final<|message|>" in generated_text:
+            self.has_final = True
+
+        # Only stop at <|return|> if in final channel
+        last_token = input_ids[0][-1].item()
+        if last_token == self.return_token and self.has_final:
+            return True
+
+        # Don't stop at intermediate <|end|> tokens
+        if last_token == self.end_token:
+            return False
+```
+
+#### Key Insights
+1. **Never modify the original template** - Unsloth templates are carefully designed
+2. **Handle output correctly** - The issue was in our code, not the model
+3. **Debug systematically** - Token-by-token analysis revealed the exact issue
+4. **Both models affected** - Proved it wasn't a fine-tuning problem
+
+#### Implementation
+- Fixed in `chat_gradio_fixed.py` with proper channel handling
+- Streams only final channel when "Show Thinking" is OFF
+- Shows all channels formatted when "Show Thinking" is ON
+- No flashing/disappearing text during generation
+
 **Remember**: The best code is code that works. Start simple, measure everything, optimize later.

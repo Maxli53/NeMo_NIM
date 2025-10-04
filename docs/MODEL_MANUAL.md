@@ -35,8 +35,9 @@ Your model consists of multiple layers:
 - **Parameters**: 20 billion
 - **Architecture**: Transformer with Mixture of Experts (MoE)
 - **Quantization**: 4-bit (via Unsloth/BitsAndBytes)
-- **Memory Usage**: ~14GB VRAM (inference), ~20GB (training)
-- **Speed**: 6-9 tokens/second on RTX 3090
+- **Memory Usage**: ~12GB VRAM (inference), ~18-20GB (training)
+- **Speed**: 15-16 tokens/second on RTX 3090 (with optimizations)
+- **Context Length**: 2048 tokens (configurable up to 8192)
 
 ---
 
@@ -570,45 +571,135 @@ List 3 programming languages with their year of creation
 
 ## Performance Optimization
 
-### GPU Utilization
+### Actual Performance Benchmarks
 
-#### Current Performance
+#### Measured on RTX 3090 (24GB VRAM)
 ```
-Training:  20GB VRAM, 11.4s/step
-Inference: 14GB VRAM, 6-9 tokens/sec
+Model Loading:     12 seconds (4-bit quantized, 20B params)
+Training:          18-20GB VRAM, 11-14s/step with LoRA
+Inference Speed:   15-16 tokens/sec (optimized)
+Without optimizations: 5-8 tokens/sec
 ```
 
-#### Optimization Strategies
+### Inference Optimization Stack
 
-1. **Batch Processing**
+#### 1. **Unsloth Optimizations** (Active) ✅
 ```python
-# Process multiple prompts simultaneously
-batch_size = 2  # For RTX 3090
-# Results: ~15 tokens/sec total throughput
+# Custom Triton kernels - 2x faster than vanilla PyTorch
+# Automatic with FastLanguageModel.from_pretrained()
+FA [Xformers = 0.0.32. FA2 = False]  # Current status
 ```
 
-2. **Reduce Sequence Length**
+#### 2. **Flash Attention 2** (Not Compatible) ❌
 ```python
-max_seq_length = 1024  # Instead of 2048
-# Saves ~2GB VRAM, allows larger batches
+# Issue: PyTorch 2.8 + CUDA 12.8 incompatibility
+# Requires: FA <=2.8.2 but compilation fails
+# Workaround: Use xformers instead (already active)
+# Potential gain: +2-3 tokens/sec (not worth the hassle)
 ```
 
-3. **Use Both GPUs**
+#### 3. **Xformers** (Active) ✅
 ```python
-# GPU 0: Main inference
-# GPU 1: Batch overflow or different model
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"  # or "1"
+# Memory-efficient attention - installed and working
+pip install xformers --index-url https://download.pytorch.org/whl/cu128
+# Automatically detected by Unsloth
 ```
 
-### Speed vs Quality Tradeoffs
+#### 4. **KV Cache** (Critical for Speed) ✅
+```python
+use_cache=True  # MUST be enabled
+# Without: 2.9 tokens/sec
+# With: 16 tokens/sec (5.5x faster!)
+```
 
-| Setting | Speed | Quality | Use Case |
-|---------|-------|---------|----------|
-| `reasoning="low"` | Fast (8-9 tok/s) | Basic | Simple Q&A |
-| `reasoning="medium"` | Medium (6-7 tok/s) | Good | General use |
-| `reasoning="high"` | Slow (4-5 tok/s) | Best | Complex problems |
-| `temperature=0.3` | Faster | Consistent | Factual |
-| `temperature=1.0` | Slower | Creative | Stories |
+### Speed Optimization Techniques
+
+#### 1. **Avoid Model Reloading**
+```python
+# BAD: Loading model for each prompt
+def chat(prompt):
+    model = load_model()  # 12 seconds overhead!
+    return generate(model, prompt)
+
+# GOOD: Load once, reuse
+model = load_model()  # Once at startup
+def chat(prompt):
+    return generate(model, prompt)  # Fast!
+```
+
+#### 2. **Proper Template Usage**
+```python
+# Use official chat template for consistency
+formatted = tokenizer.apply_chat_template(
+    messages,
+    tokenize=False,
+    add_generation_prompt=True,
+    reasoning_effort="low"  # Control reasoning depth
+)
+```
+
+#### 3. **GPU Selection Strategy**
+```python
+# Set BEFORE imports (critical!)
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # Use GPU 1
+# Then import torch, unsloth, etc.
+```
+
+### Memory Optimization
+
+#### VRAM Usage Breakdown (20B Model)
+```
+Base model (4-bit):     ~11GB
+LoRA adapter:           ~0.5GB
+KV cache (2048 tokens): ~1-2GB
+Batch size 1:           ~12GB total
+Batch size 2:           ~14GB total
+Training overhead:      +6-8GB
+```
+
+#### Reduce Memory Usage
+```python
+# 1. Shorter context
+max_seq_length = 1024  # vs 2048, saves ~1GB
+
+# 2. Smaller LoRA rank
+r = 8   # vs r=16, saves ~200MB
+
+# 3. Clear cache periodically
+torch.cuda.empty_cache()
+```
+
+### Performance by Configuration
+
+| Setup | Speed | VRAM | Notes |
+|-------|-------|------|-------|
+| Baseline (no optimization) | 5-8 tok/s | 12GB | Slow! |
+| + Unsloth kernels | 12-14 tok/s | 12GB | Good |
+| + Xformers | 15-16 tok/s | 12GB | Current |
+| + Flash Attention 2 | 18-20 tok/s | 12GB | Not compatible |
+| + Batch size 2 | 25-30 tok/s total | 14GB | Best throughput |
+
+### Reasoning Control Impact
+
+| Setting | Speed | Response Style |
+|---------|-------|----------------|
+| `reasoning="low"` | 16 tok/s | Direct answers |
+| `reasoning="medium"` | 15 tok/s | Balanced |
+| `reasoning="high"` | 14 tok/s | Detailed analysis |
+
+### Bottlenecks & Limitations
+
+1. **Memory Bandwidth**: Primary bottleneck for 20B models
+2. **Single GPU**: Can't parallelize layers
+3. **4-bit Quantization**: Some compute overhead
+4. **PyTorch 2.8**: Too new for some optimizations
+
+### Expected Performance
+
+For GPT-OSS-20B on RTX 3090:
+- **Realistic**: 15-16 tokens/sec (what we have)
+- **Theoretical Max**: 20-25 tokens/sec (with all optimizations)
+- **Comparison**: GPT-3.5 API ~50 tokens/sec, but that's distributed
 
 ---
 

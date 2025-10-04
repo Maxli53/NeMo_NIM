@@ -9,23 +9,32 @@ Efficient fine-tuning of GPT-OSS-20B using Unsloth. Requires only 14GB VRAM on R
 ./setup.sh
 source venv/bin/activate
 
-# Train with 100% Unsloth-compliant approach (RECOMMENDED)
-python scripts/train_unsloth.py
+# Train with production-ready script (v3 with loss monitoring)
+python scripts/train.py --profile standard --gpu 1
 
-# Or use advanced configurable training
-python scripts/train_advanced.py --profile quick_test
+# Quick test (30 steps) - Verified: 8 min, final loss ~0.89
+python scripts/train.py --profile quick_test --gpu 1
 
-# Inference
-python scripts/inference.py --model_path final_model --interactive
+# Quick one-shot chat (loads model each time)
+python scripts/chat.py "Your question here" --low
+
+# Interactive terminal chat with streaming (15-16 tokens/sec)
+python scripts/chat_interactive.py --gpu 1
+
+# Web UI with Gradio (RECOMMENDED - ChatGPT-like interface)
+python scripts/chat_gradio_fixed.py --gpu 1 --port 7860
 ```
 
-## 📋 Two Implementation Approaches
+## 📋 Key Features
 
-### 1. **Clean Unsloth Implementation** (`train_unsloth.py`) ✅ RECOMMENDED
-100% compliant with official Unsloth approach. Simple, clean, and proven to work.
+### ✅ Production Ready Scripts
+- **Training** (`train.py`): Loss monitoring, configurable profiles, checkpoint management
+- **Terminal Chat** (`chat_interactive.py`): Rich formatting, streaming responses, session management
+- **Web UI** (`chat_gradio_fixed.py`): ChatGPT-like interface with full parameter controls
+- **Benchmarking** (`test_speed.py`): Measure actual inference speed without loading overhead
 
-### 2. **Advanced Configurable Implementation** (`train_advanced.py`)
-Feature-rich with profiles, monitoring, and resume capabilities.
+### 🎯 Fixed: GPT-OSS Channel Handling
+Properly handles GPT-OSS-20B's multi-channel architecture (analysis, commentary, final) without early stopping at intermediate `<|end|>` tokens.
 
 ## 🛠 Installation
 
@@ -97,14 +106,15 @@ ln -sf ../../blobs/31709e4bd1403df4437091d952e2ec837efbbfc06337b4b2b6c6875491e0e
 
 ## 🔧 Implementation Details
 
-### Clean Unsloth Implementation (`train_unsloth.py`)
+### Production Training Script (`train.py`)
 
 **Key Features:**
-- 100% Unsloth-compliant
-- Pre-quantized 4-bit model
-- Official LoRA settings (r=8, alpha=16)
-- Simple and straightforward
-- ~11.7GB VRAM usage
+- Loss monitoring with target tracking (0.5 optimal)
+- Configurable training profiles
+- Extensive documentation with Unsloth links
+- GPU selection support (CUDA_VISIBLE_DEVICES)
+- Simplified model naming convention
+- ~14.7GB VRAM usage
 
 **Configuration:**
 ```python
@@ -134,15 +144,14 @@ train_on_responses_only with:
   response_part = "<|start|>assistant<|channel|>"
 ```
 
-### Advanced Implementation (`train_advanced.py`)
+### Key Optimizations
 
-**Additional Features:**
-- Multiple training profiles
-- Checkpoint resuming
-- Validation split
-- Overfitting detection
-- Memory monitoring
-- Configurable via YAML
+**QLoRA Configuration:**
+- 4-bit quantization via BitsAndBytes
+- LoRA rank 8 with alpha 16 (2:1 ratio)
+- Target modules: all attention + MLP layers
+- No LoftQ (requires 40GB VRAM for FP16 loading)
+- RSLoRA disabled (for r<16)
 
 **Profiles:**
 | Profile | Steps | LoRA r | Use Case |
@@ -182,13 +191,59 @@ python scripts/train_advanced.py \
 
 ## 💻 Inference
 
-### Interactive Chat
+### Web UI with Gradio (ChatGPT-like Interface) ✨ NEW
 ```bash
-python scripts/inference.py \
-    --model_path final_model \
-    --interactive \
-    --reasoning_effort medium
+# Launch web interface on default port
+python scripts/chat_gradio_fixed.py --gpu 1
+
+# Custom port and network access
+python scripts/chat_gradio_fixed.py --gpu 1 --port 7860 --server_name 0.0.0.0
+
+# With public share link (via Gradio)
+python scripts/chat_gradio_fixed.py --gpu 1 --share
 ```
+
+**Features:**
+- 🎨 Beautiful ChatGPT-like interface
+- ⚡ Real-time streaming responses (15-16 tokens/sec)
+- 🎛️ Full parameter controls (temperature, top-p, top-k, max tokens)
+- 🧠 Toggle "Show Thinking Process" to see/hide model reasoning
+- 💾 Export/import conversation history
+- 📊 Live statistics display
+- 🔧 GPT-OSS reasoning effort control (low/medium/high)
+- ✅ **Fixed**: Proper channel handling - no more cutoff responses!
+
+### Interactive Terminal Chat
+```bash
+# Start interactive chat with streaming output
+python scripts/chat_interactive.py --gpu 1
+
+# With custom settings
+python scripts/chat_interactive.py \
+    --model_path models/latest \
+    --reasoning high \
+    --temperature 0.8 \
+    --max_tokens 1000
+```
+
+**Interactive Commands:**
+- `/help` - Show available commands
+- `/clear` - Clear conversation history
+- `/save [filename]` - Save conversation
+- `/load <filename>` - Load previous conversation
+- `/stats` - Show session statistics
+- `/reasoning <low/medium/high>` - Adjust reasoning effort
+- `/settings` - Display current settings
+- `/exit` - Quit the chat
+
+**Features:**
+- Real-time token streaming (see response as it generates)
+- Rich terminal formatting with colors
+- Conversation history management
+- Session persistence
+- Performance metrics (tokens/sec)
+- Markdown rendering
+- GPT-OSS channel support
 
 ### Benchmark
 ```bash
@@ -239,17 +294,18 @@ python scripts/benchmark.py --model_path final_model
 
 ```
 ├── scripts/
-│   ├── train_unsloth.py         # Clean 100% Unsloth implementation ✅
-│   ├── train_advanced.py        # Configurable with profiles
-│   ├── train_simple.py          # Basic training
-│   ├── inference.py             # Generation & chat
-│   ├── benchmark.py             # Performance testing
-│   ├── prepare_dataset.py       # Dataset preparation
-│   └── evaluate.py              # Model evaluation
+│   ├── train.py                 # Production training with loss monitoring ✅
+│   ├── chat.py                  # One-shot inference
+│   ├── chat_interactive.py      # Terminal chat with Rich formatting ✨
+│   ├── chat_gradio_fixed.py     # Web UI with ChatGPT-like interface 🎯
+│   ├── test_speed.py            # Performance benchmarking
+│   └── debug_channels.py        # Channel debugging utilities
 ├── configs/
 │   ├── training_optimal.yaml    # Advanced training config
 │   └── unsloth_official.yaml    # Clean Unsloth config
-├── models/                      # Model storage (empty, uses HF cache)
+├── models/
+│   ├── latest/                  # Symlink to most recent model
+│   └── gpt-oss-20b_{profile}_{timestamp}/  # Named by profile and time
 ├── data/                        # Datasets
 ├── outputs/                     # Training outputs
 └── setup.sh                     # Setup script
@@ -265,6 +321,9 @@ python scripts/benchmark.py --model_path final_model
 | "All labels are -100" error | Wrong chat template markers for train_on_responses_only |
 | High VRAM usage | Use gradient_checkpointing="unsloth" |
 | Training loss = 0 | Template issue, check instruction/response parts |
+| Slow inference speed reported | Model loading time included in measurement |
+| Flash Attention 2 fails | Incompatible with PyTorch 2.8 + CUDA 12.8 |
+| Template artifacts in output | Use tokenizer.apply_chat_template() consistently |
 
 ## 🔗 Resources
 
@@ -283,24 +342,26 @@ python scripts/benchmark.py --model_path final_model
 5. **Keep it simple**: Clean implementation works better than complex configs
 
 ---
-**Hardware:** 2x RTX 3090 (24GB each) | **Created:** 2025-09-30 | **Tested:** 2025-10-04 ✅ Production Ready
+**Hardware:** 2x RTX 3090 (24GB each) | **Created:** 2025-09-30 | **Updated:** 2025-10-04 ✅ Production Ready
 
-## 📊 Verified Performance Metrics (2025-10-04)
+## 📊 Verified Performance Metrics (2025-10-04) ✅
 
 ### Training Performance
 - **Model Loading**: 4 seconds (from HF cache)
 - **Training Speed**: 16.3 seconds/step average
 - **VRAM Usage**: 14.7GB peak (60% of 24GB)
 - **30 Steps Duration**: 8 minutes 8 seconds
-- **Final Loss**: 1.43 (excellent convergence)
+- **Final Loss**: 0.8895 (excellent convergence, target: 0.5)
 - **Effective Batch Size**: 16 (2×8 gradient accumulation)
+- **Loss Monitoring**: Real-time tracking with target alerts
 
 ### Inference Performance
-- **Model Loading**: 4 seconds
+- **Model Loading**: 12 seconds (base + LoRA adapter)
 - **VRAM Usage**: 12.4GB
-- **Generation Speed**: 2.4 tokens/second
-- **First Token Latency**: ~20 seconds
-- **Context Support**: 16,384 tokens tested
+- **Generation Speed**: 15-16 tokens/second (actual)
+- **First Token Latency**: ~2 seconds (after warmup)
+- **Context Support**: 2,048 tokens (configurable to 16K)
+- **Optimization**: Unsloth kernels + xformers (FA2 incompatible)
 
 ### Dual GPU Configuration
 - **GPU 0**: Training (14.7GB VRAM)
