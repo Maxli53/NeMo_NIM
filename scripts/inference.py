@@ -68,19 +68,37 @@ def parse_args():
     return parser.parse_args()
 
 def load_model(args):
-    """Load model for inference"""
+    """Load model for inference - FIXED to properly load LoRA adapters"""
     print(f"Loading model from: {args.model_path}")
     print(f"Max sequence length: {args.max_seq_length}")
 
     # Set GPU
     os.environ["CUDA_VISIBLE_DEVICES"] = str(args.gpu_id)
 
-    model, tokenizer = FastLanguageModel.from_pretrained(
-        model_name=args.model_path,
-        max_seq_length=args.max_seq_length,
-        dtype=None,
-        load_in_4bit=args.load_in_4bit,
-    )
+    # Check if this is a LoRA adapter path or base model
+    if args.model_path.startswith("unsloth/") or args.model_path.startswith("meta-llama/"):
+        # This is a base model - load directly
+        print("Loading base model...")
+        model, tokenizer = FastLanguageModel.from_pretrained(
+            model_name=args.model_path,
+            max_seq_length=args.max_seq_length,
+            dtype=None,
+            load_in_4bit=args.load_in_4bit,
+        )
+    else:
+        # This is likely a LoRA adapter - load base model first
+        print("Loading base GPT-OSS-20B model...")
+        model, tokenizer = FastLanguageModel.from_pretrained(
+            model_name="unsloth/gpt-oss-20b-unsloth-bnb-4bit",
+            max_seq_length=args.max_seq_length,
+            dtype=None,
+            load_in_4bit=args.load_in_4bit,
+        )
+
+        # Apply LoRA adapter
+        print(f"Applying LoRA adapter from {args.model_path}...")
+        from peft import PeftModel
+        model = PeftModel.from_pretrained(model, args.model_path)
 
     # Set to inference mode
     FastLanguageModel.for_inference(model)

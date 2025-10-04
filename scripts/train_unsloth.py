@@ -45,7 +45,7 @@ model = FastLanguageModel.get_peft_model(
 # ============================================================
 # STEP 3: Load and Prepare Dataset (Simple Unsloth Way)
 # ============================================================
-dataset = load_dataset("HuggingFaceH4/Multilingual-Thinking", split="train[:1000]")
+dataset = load_dataset("HuggingFaceH4/Multilingual-Thinking", split="train[:5000]")  # Increased from 1000
 dataset = standardize_sharegpt(dataset)
 
 def formatting_prompts_func(examples):
@@ -72,14 +72,14 @@ trainer = SFTTrainer(
     tokenizer=tokenizer,
     train_dataset=dataset,
     args=SFTConfig(
-        # Core settings
-        per_device_train_batch_size=2,
-        gradient_accumulation_steps=8,  # Effective batch size = 16
+        # Core settings (Optimized for full VRAM usage)
+        per_device_train_batch_size=4,  # Increased from 2
+        gradient_accumulation_steps=4,  # Reduced from 8 (same effective batch = 16)
 
         # Learning settings
         learning_rate=2e-4,
         num_train_epochs=1,
-        max_steps=30,  # Quick test
+        max_steps=200,  # Medium training run (was 30)
 
         # Optimizer
         optim="adamw_8bit",
@@ -99,7 +99,7 @@ trainer = SFTTrainer(
         # Saving
         output_dir="outputs",
         save_strategy="steps",
-        save_steps=15,
+        save_steps=50,  # Save every 50 steps
 
         # Other
         seed=3407,
