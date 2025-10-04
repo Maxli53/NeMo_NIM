@@ -27,8 +27,8 @@ models/lora_adapters/*
 
 # Outputs
 checkpoints/
-final_model/
-outputs/
+models/final_model/
+models/outputs/
 exports/
 workspace/
 logs/
@@ -65,4 +65,9 @@ unsloth_compiled_cache/
 !models/base/.gitkeep
 !models/gguf/.gitkeep
 !models/checkpoints/.gitkeep
-!models/lora_adapters/.gitkeep
+!models/lora_adapters/.gitkeep# Model outputs and tokenizers
+models/archive/**/*.safetensors
+models/archive/**/*.bin
+models/archive/**/tokenizer.json
+models/archive/**/trainer_state.json
+models/archive/**/checkpoint-*/
